@@ -1,0 +1,5 @@
+PURPOSE of /CoreOS/openssl/Regression/bz1090952-Do-not-send-ECC-ciphersuites-in-SSLv2-client-hello
+Description: Test for BZ#1090952 (Do not send ECC ciphersuites in SSLv2 client hello)
+Author: Hubert Kario <hkario@redhat.com>
+Bug summary: Do not send ECC ciphersuites in SSLv2 client hello
+Bugzilla link: https://bugzilla.redhat.com/show_bug.cgi?id=1090952
