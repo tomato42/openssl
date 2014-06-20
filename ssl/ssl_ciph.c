@@ -555,6 +555,20 @@ int ssl_cipher_get_evp(const SSL_SESSION *s, const EVP_CIPHER **enc,
 	if (c->algorithm2 & SSL_CIPHER_ALGORITHM2_AEAD)
 		return(0);
 
+int ssl_cipher_get_evp(const SSL_SESSION *s, const EVP_CIPHER **enc,
+	     const EVP_MD **md, int *mac_pkey_type, int *mac_secret_size)
+	{
+	int i;
+	const SSL_CIPHER *c;
+
+	c=s->cipher;
+	if (c == NULL) return(0);
+
+	/* This function doesn't deal with EVP_AEAD. See
+	 * |ssl_cipher_get_aead_evp|. */
+	if (c->algorithm2 & SSL_CIPHER_ALGORITHM2_AEAD)
+		return(0);
+
 	if ((enc == NULL) || (md == NULL)) return(0);
 
 	switch (c->algorithm_enc)
