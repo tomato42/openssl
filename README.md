@@ -7,7 +7,7 @@ The main reason of the fork is to include ChaCha20 and Poly1305 ciphers on activ
 It should compile 'as least as good' as the official OpenSSL_1_0_2-stable branch.
 
 1.0.2-chacha aligns with the OpenSSL_1_0_2-stable branch
-* Added ChaCha20 and Poly1305 ciphers (backported from the official 1.0.2-aead branch)
+* Added ChaCha20 and Poly1305 ciphers (backported from the upstream 1.0.2-aead branch)
 * Minor changes to Makefiles to simplify building using the mingw (mingw64) platform on Windows
 * Minor additions to s_client
 
