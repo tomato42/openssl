@@ -239,7 +239,7 @@ static void print_result(int alg,int run_no,int count,double time_used);
 static int do_multi(int multi);
 #endif
 
-#define ALGOR_NUM	33
+#define ALGOR_NUM	32
 #define SIZE_NUM	5
 #define RSA_NUM		4
 #define DSA_NUM		3
@@ -255,7 +255,7 @@ static const char *names[ALGOR_NUM]={
   "camellia-128 cbc","camellia-192 cbc","camellia-256 cbc",
   "evp","sha256","sha512","whirlpool",
   "aes-128 ige","aes-192 ige","aes-256 ige","ghash",
-  "aes-128-gcm", "chacha20 poly1305",
+  "aes-128-gcm", "chacha20-poly1305"
 };
 static double results[ALGOR_NUM][SIZE_NUM];
 static int lengths[SIZE_NUM]={16,64,256,1024,8*1024};
@@ -501,8 +501,8 @@ int MAIN(int argc, char **argv)
 #define D_IGE_256_AES   28
 #define D_GHASH		29
 #define D_AES_128_GCM   30
-#define D_AES_256_GCM   31
-#define D_CHACHA20_POLY1305 32        
+/* #define D_AES_256_GCM   31 */
+#define D_CHACHA20_POLY1305 31        
 	double d=0.0;
 	long c[ALGOR_NUM][SIZE_NUM];
 #define	R_DSA_512	0
