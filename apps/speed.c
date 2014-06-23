@@ -255,7 +255,7 @@ static const char *names[ALGOR_NUM]={
   "camellia-128 cbc","camellia-192 cbc","camellia-256 cbc",
   "evp","sha256","sha512","whirlpool",
   "aes-128 ige","aes-192 ige","aes-256 ige","ghash",
-  "aes-128-gcm", "aes-256-gcm", "chacha20 poly1305",
+  "aes-128-gcm", "chacha20 poly1305",
 };
 static double results[ALGOR_NUM][SIZE_NUM];
 static int lengths[SIZE_NUM]={16,64,256,1024,8*1024};
@@ -936,10 +936,10 @@ int MAIN(int argc, char **argv)
                         {
                         doit[D_AES_128_GCM]=1;
                         }
-		else if (strcmp(*argv,"aes-256-gcm") == 0)
+/*		else if (strcmp(*argv,"aes-256-gcm") == 0)
 			{
 			doit[D_AES_256_GCM]=1;
-			}
+			} */
 		else
 #endif
 #ifndef OPENSSL_NO_CAMELLIA
@@ -1091,7 +1091,7 @@ int MAIN(int argc, char **argv)
 #ifndef OPENSSL_NO_AES
 			BIO_printf(bio_err,"aes-128-cbc aes-192-cbc aes-256-cbc ");
                         BIO_printf(bio_err,"aes-128-ige aes-192-ige aes-256-ige\n");
-			BIO_printf(bio_err,"aes-128-gcm aes-256-gcm ");                        
+			BIO_printf(bio_err,"aes-128-gcm");                        
 #endif
 #ifndef OPENSSL_NO_CAMELLIA
 			BIO_printf(bio_err,"\n");
