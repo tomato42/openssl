@@ -66,9 +66,9 @@ SRPTEST=	srptest
 V3NAMETEST=	v3nametest
 ASN1TEST=	asn1test
 HEARTBEATTEST=  heartbeat_test
-CHACHATEST=	chacha_test
+CHACHATEST=	chachatest
 POLY1305TEST=	poly1305test
-
+AEADTEST=	aeadtest
 TESTS=		alltests
 
 EXE=	$(BNTEST)$(EXE_EXT) $(ECTEST)$(EXE_EXT)  $(ECDSATEST)$(EXE_EXT) $(ECDHTEST)$(EXE_EXT) $(IDEATEST)$(EXE_EXT) \
@@ -79,7 +79,8 @@ EXE=	$(BNTEST)$(EXE_EXT) $(ECTEST)$(EXE_EXT)  $(ECDSATEST)$(EXE_EXT) $(ECDHTEST)
 	$(RANDTEST)$(EXE_EXT) $(DHTEST)$(EXE_EXT) $(ENGINETEST)$(EXE_EXT) \
 	$(BFTEST)$(EXE_EXT) $(CASTTEST)$(EXE_EXT) $(SSLTEST)$(EXE_EXT) $(EXPTEST)$(EXE_EXT) $(DSATEST)$(EXE_EXT) $(RSATEST)$(EXE_EXT) \
 	$(EVPTEST)$(EXE_EXT) $(IGETEST)$(EXE_EXT) $(JPAKETEST)$(EXE_EXT) $(SRPTEST)$(EXE_EXT) \
-	$(ASN1TEST)$(EXE_EXT) $(V3NAMETEST)$(EXE_EXT) $(HEARTBEATTEST)$(EXE_EXT)
+	$(ASN1TEST)$(EXE_EXT) $(V3NAMETEST)$(EXE_EXT) $(HEARTBEATTEST)$(EXE_EXT) \
+	$(CHACHATEST)$(EXE_EXT) $(POLY1305TEST)$(EXE_EXT) $(AEADTEST)$(EXE_EXT)
 
 # $(METHTEST)$(EXE_EXT)
 
@@ -92,7 +93,7 @@ OBJ=	$(BNTEST).o $(ECTEST).o  $(ECDSATEST).o $(ECDHTEST).o $(IDEATEST).o \
 	$(RANDTEST).o $(DHTEST).o $(ENGINETEST).o $(CASTTEST).o \
 	$(BFTEST).o  $(SSLTEST).o  $(DSATEST).o  $(EXPTEST).o $(RSATEST).o \
 	$(EVPTEST).o $(IGETEST).o $(JPAKETEST).o $(ASN1TEST).o $(V3NAMETEST).o \
-	$(HEARTBEATTEST).o
+	$(HEARTBEATTEST).o $(CHACHATEST).o $(POLY1305TEST).o  $(AEADTEST).c
 
 SRC=	$(BNTEST).c $(ECTEST).c  $(ECDSATEST).c $(ECDHTEST).c $(IDEATEST).c \
 	$(MD2TEST).c  $(MD4TEST).c $(MD5TEST).c \
@@ -102,7 +103,8 @@ SRC=	$(BNTEST).c $(ECTEST).c  $(ECDSATEST).c $(ECDHTEST).c $(IDEATEST).c \
 	$(RANDTEST).c $(DHTEST).c $(ENGINETEST).c $(CASTTEST).c \
 	$(BFTEST).c  $(SSLTEST).c $(DSATEST).c   $(EXPTEST).c $(RSATEST).c \
 	$(EVPTEST).c $(IGETEST).c $(JPAKETEST).c $(SRPTEST).c $(ASN1TEST).c \
-	$(V3NAMETEST).c $(HEARTBEATTEST).c
+	$(V3NAMETEST).c $(HEARTBEATTEST).c $(CHACHATEST).c \
+	$(POLY1305TEST).c $(AEADTEST).c
 
 EXHEADER= 
 HEADER=	$(EXHEADER)
@@ -145,7 +147,8 @@ alltests: \
 	test_enc test_x509 test_rsa test_crl test_sid \
 	test_gen test_req test_pkcs7 test_verify test_dh test_dsa \
 	test_ss test_ca test_engine test_evp test_ssl test_tsa test_ige \
-	test_jpake test_srp test_cms test_ocsp test_v3name test_heartbeat
+	test_jpake test_srp test_cms test_ocsp test_v3name test_heartbeat \
+	test_chacha test_poly1305 test_aead
 
 test_evp: $(EVPTEST)$(EXE_EXT) evptests.txt
 	../util/shlib_wrap.sh ./$(EVPTEST) evptests.txt
@@ -340,12 +343,24 @@ test_heartbeat: $(HEARTBEATTEST)$(EXE_EXT)
 	../util/shlib_wrap.sh ./$(HEARTBEATTEST)
 
 test_chacha: $(CHACHATEST)$(EXE_EXT)
-	@echo "Test ChaCha"
+	@echo "Test ChaCha20"
 	../util/shlib_wrap.sh ./$(CHACHATEST)
 
 test_poly1305: $(POLY1305TEST)$(EXE_EXT)
 	@echo "Test Poly1305"
 	../util/shlib_wrap.sh ./$(POLY1305TEST)
+
+test_aead: $(AEADTEST)$(EXE_EXT) chacha20_poly1305_tests.txt \
+          aes_128_gcm_tests.txt aes_256_gcm_tests.txt
+	@echo "Test ChaCha20+Poly1305"
+	../util/shlib_wrap.sh ./$(AEADTEST) chacha20-poly1305 \
+		chacha20_poly1305_tests.txt
+	@echo "Test AES-128-GCM"
+	../util/shlib_wrap.sh ./$(AEADTEST) aes-128-gcm \
+		aes_128_gcm_tests.txt
+	@echo "Test AES-256-GCM"
+	../util/shlib_wrap.sh ./$(AEADTEST) aes-256-gcm \
+		aes_256_gcm_tests.txt
 
 lint:
 	lint -DLINT $(INCLUDES) $(SRC)>fluff
@@ -435,6 +450,9 @@ $(CHACHATEST)$(EXE_EXT): $(CHACHATEST).o $(DLIBCRYPTO)
 
 $(POLY1305TEST)$(EXE_EXT): $(POLY1305TEST).o $(DLIBCRYPTO)
 	@target=$(POLY1305TEST); $(BUILD_CMD)
+
+$(AEADTEST)$(EXE_EXT): $(AEADTEST).o $(DLIBCRYPTO)
+	@target=$(AEADTEST); $(BUILD_CMD)
 
 $(RMDTEST)$(EXE_EXT): $(RMDTEST).o $(DLIBCRYPTO)
 	@target=$(RMDTEST); $(BUILD_CMD)
