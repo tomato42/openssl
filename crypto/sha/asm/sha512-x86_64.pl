@@ -2304,12 +2304,12 @@ $code.=<<___;
 	.rva	.LSEH_end_$func
 	.rva	.LSEH_info_$func
 ___
-$code.=<<___ if ($SZ==4 && $shext);
+$code.=<<___ if ($SZ==4 && $shaext);
 	.rva	.LSEH_begin_${func}_shaext
 	.rva	.LSEH_end_${func}_shaext
 	.rva	.LSEH_info_${func}_shaext
 ___
-$code.=<<___ if ($SZ==4);
+$code.=<<___ if ($SZ==4 && !$shaext);
 	.rva	.LSEH_begin_${func}_ssse3
 	.rva	.LSEH_end_${func}_ssse3
 	.rva	.LSEH_info_${func}_ssse3
@@ -2342,7 +2342,7 @@ $code.=<<___ if ($SZ==4 && $shaext);
 	.byte	9,0,0,0
 	.rva	shaext_handler
 ___
-$code.=<<___ if ($SZ==4);
+$code.=<<___ if ($SZ==4 && !$shaext);
 .LSEH_info_${func}_ssse3:
 	.byte	9,0,0,0
 	.rva	se_handler
