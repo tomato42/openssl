@@ -2310,7 +2310,7 @@ $code.=<<___ if ($SZ==4 && $shaext);
 	.rva	.LSEH_end_${func}_shaext
 	.rva	.LSEH_info_${func}_shaext
 ___
-$code.=<<___ if ($SZ==4);
+$code.=<<___ if ($SZ==4 && !$shaext);
 	.rva	.LSEH_begin_${func}_ssse3
 	.rva	.LSEH_end_${func}_ssse3
 	.rva	.LSEH_info_${func}_ssse3
