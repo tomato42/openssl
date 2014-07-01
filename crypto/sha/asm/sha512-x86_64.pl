@@ -2263,7 +2263,8 @@ $code.=<<___;
 	ret
 .size	se_handler,.-se_handler
 ___
-$code.=<<___ if ($shaext);
+
+$code.=<<___ if ($SZ==4 && $shaext);
 .type	shaext_handler,\@abi-omnipotent
 .align	16
 shaext_handler:
@@ -2309,7 +2310,7 @@ $code.=<<___ if ($SZ==4 && $shaext);
 	.rva	.LSEH_end_${func}_shaext
 	.rva	.LSEH_info_${func}_shaext
 ___
-$code.=<<___ if ($SZ==4 && !$shaext);
+$code.=<<___ if ($SZ==4);
 	.rva	.LSEH_begin_${func}_ssse3
 	.rva	.LSEH_end_${func}_ssse3
 	.rva	.LSEH_info_${func}_ssse3
@@ -2342,7 +2343,7 @@ $code.=<<___ if ($SZ==4 && $shaext);
 	.byte	9,0,0,0
 	.rva	shaext_handler
 ___
-$code.=<<___ if ($SZ==4 && !$shaext);
+$code.=<<___ if ($SZ==4);
 .LSEH_info_${func}_ssse3:
 	.byte	9,0,0,0
 	.rva	se_handler
