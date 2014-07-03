@@ -122,7 +122,7 @@ const char ssl2_version_str[]="SSLv2" OPENSSL_VERSION_PTEXT;
 
 /* list of available SSLv2 ciphers (sorted by id) */
 OPENSSL_GLOBAL const SSL_CIPHER ssl2_ciphers[]={
-#if 0
+#if 1
 /* NULL_WITH_MD5 v3 */
 	{
 	1,
@@ -254,7 +254,7 @@ OPENSSL_GLOBAL const SSL_CIPHER ssl2_ciphers[]={
 	168,
 	},
 
-#if 0
+#if 1
 /* RC4_64_WITH_MD5 */
 	{
 	1,
