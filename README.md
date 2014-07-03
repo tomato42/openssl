@@ -7,10 +7,10 @@ You're looking at the 1.0.2-chacha branch, which aligns with the OpenSSL_1_0_2-s
 
 The main reason of the fork is to include ChaCha20, Poly1305 and experimental/insecure ciphers, and to add some extra features to s_client. It should compile 'as least as good' as the official OpenSSL_1_0_2-stable branch.
 
-* Added ChaCha20 and Poly1305 ciphers (backported from the upstream 1.0.2-aead branch)
-* Enabled TLS1_ALLOW_EXPERIMENTAL_CIPHERSUITE
-* Enabled SSLv2 cipher NULL_WITH_MD5 v3
-* Minor changes to Makefiles to simplify building using the mingw / mingw64 platform on Windows
+* Added ChaCha20 and Poly1305 ciphers (backported from the upstream
+* 1.0.2-aead branch) Enabled TLS1_ALLOW_EXPERIMENTAL_CIPHERSUITE
+* Enabled SSLv2 cipher NULL_WITH_MD5 v3 Minor changes to Makefiles to
+* simplify building using the mingw / mingw64 platform on Windows
 * Minor additions to s_client (-proxy)
 
 This branch can be compiled directly without any modification (especially on Windows using mingw / mingw64).
