@@ -78,8 +78,6 @@ clean:
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
 
-<<<<<<< variant A
 chacha_enc.o: ../../include/openssl/chacha.h
-chacha_enc.o: ../../include/openssl/opensslconf.h chacha_enc.c
->>>>>>> variant B
-======= end
+chacha_enc.o: ../../include/openssl/opensslconf.h
+chacha_enc.o: chacha_enc.c
