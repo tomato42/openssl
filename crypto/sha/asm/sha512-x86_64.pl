@@ -127,7 +127,7 @@ if (!$avx && `$ENV{CC} -v 2>&1` =~ /(^clang version|based on LLVM) ([3-9]\.[0-9]
 	$avx = ($2>=3.0) + ($2>3.0);
 }
 
-$shaext=0;	### set to zero if compiling for 1.0.1
+$shaext=1;	### set to zero if compiling for 1.0.1
 $avx=1		if (!$shaext && $avx);
 
 open OUT,"| \"$^X\" $xlate $flavour $output";
@@ -2298,6 +2298,7 @@ shaext_handler:
 	jmp	.Lin_prologue
 .size	shaext_handler,.-shaext_handler
 ___
+
 $code.=<<___;
 .section	.pdata
 .align	4
@@ -2310,7 +2311,7 @@ $code.=<<___ if ($SZ==4 && $shaext);
 	.rva	.LSEH_end_${func}_shaext
 	.rva	.LSEH_info_${func}_shaext
 ___
-$code.=<<___ if ($SZ==4 && !$shaext);
+$code.=<<___ if ($SZ==4);
 	.rva	.LSEH_begin_${func}_ssse3
 	.rva	.LSEH_end_${func}_ssse3
 	.rva	.LSEH_info_${func}_ssse3
@@ -2338,12 +2339,10 @@ $code.=<<___;
 	.rva	se_handler
 	.rva	.Lprologue,.Lepilogue			# HandlerData[]
 ___
-$code.=<<___ if ($SZ==4 && $shaext);
+$code.=<<___ if ($SZ==4);
 .LSEH_info_${func}_shaext:
 	.byte	9,0,0,0
 	.rva	shaext_handler
-___
-$code.=<<___ if ($SZ==4);
 .LSEH_info_${func}_ssse3:
 	.byte	9,0,0,0
 	.rva	se_handler

@@ -9,6 +9,7 @@ s_client - SSL/TLS client program
 
 B<openssl> B<s_client>
 [B<-connect host:port>]
+[B<-servername name>]
 [B<-verify depth>]
 [B<-verify_return_error>]
 [B<-cert filename>]
@@ -28,6 +29,7 @@ B<openssl> B<s_client>
 [B<-nbio>]
 [B<-crlf>]
 [B<-ign_eof>]
+[B<-no_ign_eof>]
 [B<-quiet>]
 [B<-ssl2>]
 [B<-ssl3>]
@@ -37,6 +39,7 @@ B<openssl> B<s_client>
 [B<-no_tls1>]
 [B<-bugs>]
 [B<-cipher cipherlist>]
+[B<-serverpref>]
 [B<-starttls protocol>]
 [B<-proxy host:port>]
 [B<-engine id>]
@@ -46,8 +49,7 @@ B<openssl> B<s_client>
 [B<-sess_in filename>]
 [B<-rand file(s)>]
 [B<-serverinfo types>]
-[B<-auth>]
-[B<-auth_require_reneg>]
+[B<-status>]
 
 =head1 DESCRIPTION
 
@@ -63,6 +65,10 @@ SSL servers.
 
 This specifies the host and optional port to connect to. If not specified
 then an attempt is made to connect to the local host on port 4433.
+
+=item B<-servername name>
+
+Set the TLS SNI (Server Name Indication) extension in the ClientHello message.
 
 =item B<-cert certname>
 
@@ -176,6 +182,11 @@ input.
 inhibit printing of session and certificate information.  This implicitly
 turns on B<-ign_eof> as well.
 
+=item B<-no_ign_eof>
+
+shut down the connection when end of file is reached in the input.
+Can be used to override the implicit B<-ign_eof> after B<-quiet>.
+
 =item B<-psk_identity identity>
 
 Use the PSK identity B<identity> when using a PSK cipher suite.
@@ -208,6 +219,10 @@ this allows the cipher list sent by the client to be modified. Although
 the server determines which cipher suite is used it should take the first
 supported cipher in the list sent by the client. See the B<ciphers>
 command for more information.
+
+=item B<-serverpref>
+
+use the server's cipher preferences; only used for SSLV2.
 
 =item B<-starttls protocol>
 
@@ -260,14 +275,10 @@ a list of comma-separated TLS Extension Types (numbers between 0 and
 The server's response (if any) will be encoded and displayed as a PEM
 file.
 
-=item B<-auth>
+=item B<-status>
 
-send RFC 5878 client and server authorization extensions in the Client Hello as well as
-supplemental data if the server also sent the authorization extensions in the Server Hello.
-
-=item B<-auth_require_reneg>
-
-only send RFC 5878 client and server authorization extensions during renegotiation.
+sends a certificate status request to the server (OCSP stapling). The server
+response (if any) is printed out.
 
 =back
 
