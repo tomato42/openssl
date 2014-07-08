@@ -1724,6 +1724,9 @@ char *SSL_CIPHER_description(const SSL_CIPHER *cipher, char *buf, int len)
 	case SSL_kSRP:
 		kx="SRP";
 		break;
+	case SSL_kGOST:
+		kx="VKO";
+		break;
 	default:
 		kx="unknown";
 		}
@@ -1756,6 +1759,12 @@ char *SSL_CIPHER_description(const SSL_CIPHER *cipher, char *buf, int len)
 		break;
 	case SSL_aSRP:
 		au="SRP";
+		break;
+	case SSL_aGOST94:
+		au="GOST94";
+		break;
+	case SSL_aGOST01:
+		au="GOST01";
 		break;
 	default:
 		au="unknown";
@@ -1804,9 +1813,12 @@ char *SSL_CIPHER_description(const SSL_CIPHER *cipher, char *buf, int len)
 	case SSL_SEED:
 		enc="SEED(128)";
 		break;
+	case SSL_eGOST2814789CNT:
+		enc="GOST89(256)";
+		break;
 #if !defined(OPENSSL_NO_CHACHA) && !defined(OPENSSL_NO_POLY1305)
 	case SSL_CHACHA20POLY1305:
-		enc="ChaCha20-Poly1305";
+		enc="ChaCha20(256)";
 		break;
 #endif  /* !OPENSSL_NO_CHACHA && !OPENSSL_NO_POLY1305 */
 	default:
@@ -1830,6 +1842,12 @@ char *SSL_CIPHER_description(const SSL_CIPHER *cipher, char *buf, int len)
 		break;
 	case SSL_AEAD:
 		mac="AEAD";
+		break;
+	case SSL_GOST89MAC:
+		mac="GOST89";
+		break;
+	case SSL_GOST94:
+		mac="GOST94";
 		break;
 	default:
 		mac="unknown";
