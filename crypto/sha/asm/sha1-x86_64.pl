@@ -1836,6 +1836,7 @@ se_handler:
 	jmp	.Lcommon_seh_tail
 .size	se_handler,.-se_handler
 ___
+
 $code.=<<___ if ($shaext);
 .type	shaext_handler,\@abi-omnipotent
 .align	16
@@ -1870,8 +1871,8 @@ shaext_handler:
 	jmp	.Lcommon_seh_tail
 .size	shaext_handler,.-shaext_handler
 ___
-$code.=<<___;
 
+$code.=<<___;
 .type	ssse3_handler,\@abi-omnipotent
 .align	16
 ssse3_handler:
