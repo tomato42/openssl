@@ -7,24 +7,27 @@ You're looking at the 1.0.2-chacha branch, which aligns with the OpenSSL_1_0_2-s
 
 The main reason of the fork is to include ChaCha20, Poly1305 and experimental/insecure ciphers, and to add some extra features to s_client. It should compile 'as least as good' as the official OpenSSL_1_0_2-stable branch.
 
-* Added ChaCha20 and Poly1305 ciphers (backported from the upstream
-* 1.0.2-aead branch) Enabled TLS1_ALLOW_EXPERIMENTAL_CIPHERSUITE
-* Enabled SSLv2 cipher NULL_WITH_MD5 v3 Minor changes to Makefiles to
-* simplify building using the mingw / mingw64 platform on Windows
+* Added ChaCha20 and Poly1305 ciphers (backported from the upstream 1.0.2-aead branch)
+* Enabled experimental features
 * Minor additions to s_client (-proxy)
+* Minor changes to Makefiles to simplify building using the mingw / mingw64 platform on Windows
 
-This branch can be compiled directly without any modification (especially on Windows using mingw / mingw64).
 
+This branch can be compiled directly without any modification (also/especially on Windows using mingw / mingw64).
+
+#### Windows binaries
 The latest binary Windows 64-bit builds of these branches can be found at http://onwebsecurity.com/cryptography/openssl
-The version string of thses binaries includes the branch name and commit hash.
+The OpenSSL version string of these binaries (#define OPENSSL_VERSION_TEXT) include the branch name and commit hash.
 
 Please see the official OpenSSL repository for all relevant license / copyright info. This repository is merely a fork of their great work with some minimal additions and changes.
 
 
-Supported ciphers:
-ECDHE-ECDSA-CHACHA20-POLY1305 TLSv1.2 Kx=ECDH     Au=ECDSA Enc=ChaCha20-Poly1305 Mac=AEAD
-ECDHE-RSA-CHACHA20-POLY1305 TLSv1.2 Kx=ECDH     Au=RSA  Enc=ChaCha20-Poly1305 Mac=AEAD
-DHE-RSA-CHACHA20-POLY1305 TLSv1.2 Kx=DH       Au=RSA  Enc=ChaCha20-Poly1305 Mac=AEAD
+#### Supported ciphers
+At the moment 157
+```
+ECDHE-ECDSA-CHACHA20-POLY1305 TLSv1.2 Kx=ECDH     Au=ECDSA Enc=ChaCha20(256) Mac=AEAD
+ECDHE-RSA-CHACHA20-POLY1305 TLSv1.2 Kx=ECDH     Au=RSA  Enc=ChaCha20(256) Mac=AEAD
+DHE-RSA-CHACHA20-POLY1305 TLSv1.2 Kx=DH       Au=RSA  Enc=ChaCha20(256) Mac=AEAD
 ECDHE-RSA-AES256-GCM-SHA384 TLSv1.2 Kx=ECDH     Au=RSA  Enc=AESGCM(256) Mac=AEAD
 ECDHE-ECDSA-AES256-GCM-SHA384 TLSv1.2 Kx=ECDH     Au=ECDSA Enc=AESGCM(256) Mac=AEAD
 ECDHE-RSA-AES256-SHA384 TLSv1.2 Kx=ECDH     Au=RSA  Enc=AES(256)  Mac=SHA384
@@ -50,6 +53,8 @@ DHE-RSA-CAMELLIA256-SHA SSLv3 Kx=DH       Au=RSA  Enc=Camellia(256) Mac=SHA1
 DHE-DSS-CAMELLIA256-SHA SSLv3 Kx=DH       Au=DSS  Enc=Camellia(256) Mac=SHA1
 DH-RSA-CAMELLIA256-SHA  SSLv3 Kx=DH/RSA   Au=DH   Enc=Camellia(256) Mac=SHA1
 DH-DSS-CAMELLIA256-SHA  SSLv3 Kx=DH/DSS   Au=DH   Enc=Camellia(256) Mac=SHA1
+GOST2001-GOST89-GOST89  SSLv3 Kx=VKO      Au=GOST01 Enc=GOST89(256) Mac=GOST89
+GOST94-GOST89-GOST89    SSLv3 Kx=VKO      Au=GOST94 Enc=GOST89(256) Mac=GOST89
 AECDH-AES256-SHA        SSLv3 Kx=ECDH     Au=None Enc=AES(256)  Mac=SHA1
 ADH-AES256-GCM-SHA384   TLSv1.2 Kx=DH       Au=None Enc=AESGCM(256) Mac=AEAD
 ADH-AES256-SHA256       TLSv1.2 Kx=DH       Au=None Enc=AES(256)  Mac=SHA256
@@ -166,3 +171,15 @@ EXP-RC2-CBC-MD5         SSLv2 Kx=RSA(512) Au=RSA  Enc=RC2(40)   Mac=MD5  export
 EXP-ADH-RC4-MD5         SSLv3 Kx=DH(512)  Au=None Enc=RC4(40)   Mac=MD5  export
 EXP-RC4-MD5             SSLv3 Kx=RSA(512) Au=RSA  Enc=RC4(40)   Mac=MD5  export
 EXP-RC4-MD5             SSLv2 Kx=RSA(512) Au=RSA  Enc=RC4(40)   Mac=MD5  export
+ECDHE-RSA-NULL-SHA      SSLv3 Kx=ECDH     Au=RSA  Enc=None      Mac=SHA1
+ECDHE-ECDSA-NULL-SHA    SSLv3 Kx=ECDH     Au=ECDSA Enc=None      Mac=SHA1
+GOST2001-NULL-GOST94    SSLv3 Kx=VKO      Au=GOST01 Enc=None      Mac=GOST94
+GOST94-NULL-GOST94      SSLv3 Kx=VKO      Au=GOST94 Enc=None      Mac=GOST94
+AECDH-NULL-SHA          SSLv3 Kx=ECDH     Au=None Enc=None      Mac=SHA1
+ECDH-RSA-NULL-SHA       SSLv3 Kx=ECDH/RSA Au=ECDH Enc=None      Mac=SHA1
+ECDH-ECDSA-NULL-SHA     SSLv3 Kx=ECDH/ECDSA Au=ECDH Enc=None      Mac=SHA1
+NULL-SHA256             TLSv1.2 Kx=RSA      Au=RSA  Enc=None      Mac=SHA256
+NULL-SHA                SSLv3 Kx=RSA      Au=RSA  Enc=None      Mac=SHA1
+NULL-MD5                SSLv3 Kx=RSA      Au=RSA  Enc=None      Mac=MD5
+NULL-MD5                SSLv2 Kx=RSA(512) Au=RSA  Enc=None      Mac=MD5  export
+```
