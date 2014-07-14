@@ -3047,7 +3047,6 @@ OPENSSL_GLOBAL SSL_CIPHER ssl3_ciphers[]={
 	256,
 	256,
 	},
-#endif /* OPENSSL_NO_ECDH */
 
 #ifndef OPENSSL_NO_CAMELLIA
     { /* Cipher C072 */
@@ -3170,6 +3169,7 @@ OPENSSL_GLOBAL SSL_CIPHER ssl3_ciphers[]={
     256
     },
 #endif  /* OPENSSL_NO_CAMELLIA */
+#endif /* OPENSSL_NO_ECDH */
 
 #ifdef TEMP_GOST_TLS
 /* Cipher FF00 */
