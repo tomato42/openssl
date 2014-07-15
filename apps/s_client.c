@@ -1727,7 +1727,7 @@ SSL_set_tlsext_status_ids(con, ids);
 		int seen = 0;
 		BIO_printf(sbio,"<stream:stream "
 		    "xmlns:stream='http://etherx.jabber.org/streams' "
-		    "xmlns='jabber:client' to='%s' version='1.0'>", host);
+		    "xmlns='jabber:client' to='%s' version='1.0'>", servername?servername:host);
 		seen = BIO_read(sbio,mbuf,BUFSIZZ);
 		mbuf[seen] = 0;
 		while (!strstr(mbuf, "<starttls xmlns='urn:ietf:params:xml:ns:xmpp-tls'"))
