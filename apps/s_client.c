@@ -353,8 +353,8 @@ static void sc_usage(void)
 	BIO_printf(bio_err," -starttls prot - use the STARTTLS command before starting TLS\n");
 	BIO_printf(bio_err,"                 for those protocols that support it, where\n");
 	BIO_printf(bio_err,"                 'prot' defines which one to assume.  Currently,\n");
-	BIO_printf(bio_err,"                 only \"smtp\", \"pop3\", \"imap\", \"ftp\" and \"xmpp\"\n");
-	BIO_printf(bio_err,"                 are supported.\n");
+	BIO_printf(bio_err,"                 only \"smtp\", \"pop3\", \"imap\", \"ftp\", \"xmpp\", and\n");
+	BIO_printf(bio_err,"                 \"telnet\" are supported.\n");
 #ifndef OPENSSL_NO_ENGINE
 	BIO_printf(bio_err," -engine id    - Initialise and use the specified engine\n");
 #endif
@@ -578,7 +578,8 @@ enum
 	PROTO_POP3,
 	PROTO_IMAP,
 	PROTO_FTP,
-	PROTO_XMPP
+	PROTO_XMPP,
+	PROTO_TELNET
 };
 
 int MAIN(int, char **);
@@ -1050,6 +1051,8 @@ static char *jpake_secret = NULL;
 				starttls_proto = PROTO_FTP;
 			else if (strcmp(*argv, "xmpp") == 0)
 				starttls_proto = PROTO_XMPP;
+			else if (strcmp(*argv, "telnet") == 0)
+				starttls_proto = PROTO_TELNET;
 			else
 				goto bad;
 			}
@@ -1528,6 +1531,45 @@ re_start:
 
 		test=BIO_new(BIO_f_nbio_test());
 		sbio=BIO_push(test,sbio);
+		}
+	else if (starttls_proto == PROTO_TELNET)
+		{
+		static const unsigned char tls_do[] =
+			{
+			255 /* IAC */,
+			253 /* DO */,
+			 46 /* START_TLS */
+			};
+		static const unsigned char tls_will[] =
+			{
+			255 /* IAC */,
+			251 /* WILL */,
+			 46 /* START_TLS */
+			};
+		static const unsigned char tls_follows[] =
+			{
+			255 /* IAC */,
+			250 /* SB */,
+			 46 /* START_TLS */,
+			  1 /* FOLLOWS */,
+			255 /* IAC */,
+			240 /* SE */
+			};
+		int bytes;
+
+		/* Telnet server should demand we issue START_TLS */
+		bytes = BIO_read(sbio,mbuf,BUFSIZZ);
+		if (!(bytes == 3 && memcmp(mbuf, tls_do, 3) == 0))
+			goto shut;
+		/* Agree to issue START_TLS and send the FOLLOWS sub-command */
+		BIO_write(sbio, tls_will, 3);
+		BIO_write(sbio, tls_follows, 6);
+		(void)BIO_flush(sbio);
+		/* Telnet server also sent the FOLLOWS sub-command */
+		bytes = BIO_read(sbio,mbuf,BUFSIZZ);
+		if (!(bytes == 6 && memcmp(mbuf, tls_follows, 6) == 0))
+			goto shut;
+		/* Any traffic after this point must be TLS negotiation */
 		}
 
 	if (c_debug)
