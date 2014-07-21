@@ -4418,3 +4418,8 @@ CRYPTO_poly1305_init                    4777	EXIST::FUNCTION:
 EVP_AEAD_max_overhead                   4778	EXIST::FUNCTION:
 CRYPTO_chacha_20                        4779	EXIST::FUNCTION:
 EVP_aead_aes_128_gcm                    4780	EXIST::FUNCTION:AES
+X509_VERIFY_PARAM_get0_peername         4781	EXIST::FUNCTION:
+ECDSA_METHOD_set_app_data               4782	EXIST::FUNCTION:ECDSA
+sk_deep_copy                            4783	EXIST::FUNCTION:
+ECDSA_METHOD_get_app_data               4784	EXIST::FUNCTION:ECDSA
+X509_VERIFY_PARAM_add1_host             4785	EXIST::FUNCTION:
