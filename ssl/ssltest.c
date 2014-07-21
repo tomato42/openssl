@@ -703,6 +703,10 @@ static void sv_usage(void)
 #endif
 #ifndef OPENSSL_NO_TLS1
 	fprintf(stderr," -tls1         - use TLSv1\n");
+	fprintf(stderr," -tls1_1         - use TLSv1.1\n");
+#endif
+#ifndef OPENSSL_NO_TLS1_2
+	fprintf(stderr," -tls1_2         - use TLSv1.2\n");
 #endif
 	fprintf(stderr," -CApath arg   - PEM format directory of CA's\n");
 	fprintf(stderr," -CAfile arg   - PEM format file of CA's\n");
@@ -864,7 +868,7 @@ int main(int argc, char *argv[])
 	int badop=0;
 	int bio_pair=0;
 	int force=0;
-	int tls1=0,ssl2=0,ssl3=0,ret=1;
+	int tls1_2=0,tls1_1=0,tls1=0,ssl2=0,ssl3=0,ret=1;
 	int client_auth=0;
 	int server_auth=0,i;
 	struct app_verify_arg app_verify_arg =
@@ -1021,6 +1025,10 @@ int main(int argc, char *argv[])
 			ssl2=1;
 		else if	(strcmp(*argv,"-tls1") == 0)
 			tls1=1;
+		else if (strcmp(*argv,"-tls1_1") == 0)
+			tls1_1=1;
+		else if (strcmp(*argv,"-tls1_2") == 0)
+			tls1_2=1;
 		else if	(strcmp(*argv,"-ssl3") == 0)
 			ssl3=1;
 		else if	(strncmp(*argv,"-num",4) == 0)
@@ -1184,7 +1192,7 @@ bad:
 		goto end;
 		}
 
-	if (!ssl2 && !ssl3 && !tls1 && number > 1 && !reuse && !force)
+        if (!ssl2 && !ssl3 && !tls1 && !tls1_1 && !tls1_2 && number > 1 && !reuse && !force)
 		{
 		fprintf(stderr, "This case cannot work.  Use -f to perform "
 			"the test anyway (and\n-d to see what happens), "
@@ -1265,9 +1273,15 @@ bad:
 #if !defined(OPENSSL_NO_SSL2) && !defined(OPENSSL_NO_SSL3)
 	if (ssl2)
 		meth=SSLv2_method();
-	else 
+	else
 	if (tls1)
 		meth=TLSv1_method();
+	else
+	if (tls1_1)
+		meth=TLSv1_1_method();
+        else
+	if (tls1_2)
+		meth=TLSv1_2_method();
 	else
 	if (ssl3)
 		meth=SSLv3_method();
@@ -1284,8 +1298,8 @@ bad:
 		meth=SSLv23_method();
 #else
 	meth=SSLv2_method();
-#endif
-#endif
+#endif /* OPENSSL_NO_SSL2 */
+#endif /* !defined(OPENSSL_NO_SSL2) && !defined(OPENSSL_NO_SSL3) */
 
 	c_ctx=SSL_CTX_new(meth);
 	s_ctx=SSL_CTX_new(meth);
@@ -3034,8 +3048,10 @@ static int do_test_cipherlist(void)
 #ifndef OPENSSL_NO_SSL2
 	fprintf(stderr, "testing SSLv2 cipher list order: ");
 	meth = SSLv2_method();
+        i=0;
 	while ((ci = meth->get_cipher(i++)) != NULL)
 		{
+                fprintf(stderr,".");
 		if (tci != NULL)
 			if (ci->id >= tci->id)
 				{
@@ -3044,14 +3060,16 @@ static int do_test_cipherlist(void)
 				}
 		tci = ci;
 		}
-	fprintf(stderr, "ok\n");
+	fprintf(stderr, " ok\n");
 #endif
 #ifndef OPENSSL_NO_SSL3
 	fprintf(stderr, "testing SSLv3 cipher list order: ");
 	meth = SSLv3_method();
 	tci = NULL;
+        i=0;
 	while ((ci = meth->get_cipher(i++)) != NULL)
 		{
+                fprintf(stderr,".");
 		if (tci != NULL)
 			if (ci->id >= tci->id)
 				{
@@ -3060,14 +3078,16 @@ static int do_test_cipherlist(void)
 				}
 		tci = ci;
 		}
-	fprintf(stderr, "ok\n");
+	fprintf(stderr, " ok\n");
 #endif
 #ifndef OPENSSL_NO_TLS1
 	fprintf(stderr, "testing TLSv1 cipher list order: ");
 	meth = TLSv1_method();
 	tci = NULL;
+        i=0;
 	while ((ci = meth->get_cipher(i++)) != NULL)
 		{
+                fprintf(stderr,".");
 		if (tci != NULL)
 			if (ci->id >= tci->id)
 				{
@@ -3076,8 +3096,44 @@ static int do_test_cipherlist(void)
 				}
 		tci = ci;
 		}
-	fprintf(stderr, "ok\n");
+	fprintf(stderr, " ok\n");
 #endif
+#ifndef OPENSSL_NO_TLS1_1
+	fprintf(stderr, "testing TLSv1 cipher list order: ");
+	meth = TLSv1_1_method();
+	tci = NULL;
+        i=0;
+	while ((ci = meth->get_cipher(i++)) != NULL)
+		{
+                fprintf(stderr,".");
+		if (tci != NULL)
+			if (ci->id >= tci->id)
+				{
+				fprintf(stderr, "failed %lx vs. %lx\n", ci->id, tci->id);
+				return 0;
+				}
+		tci = ci;
+		}
+	fprintf(stderr, " ok\n");
+#endif /* OPENSSL_NO_TLS1_1 */
+#ifndef OPENSSL_NO_TLS1_2
+	fprintf(stderr, "testing TLSv1 cipher list order: ");
+	meth = TLSv1_2_method();
+	tci = NULL;
+        i=0;
+	while ((ci = meth->get_cipher(i++)) != NULL)
+		{
+                fprintf(stderr,".");
+                if (tci != NULL)
+			if (ci->id >= tci->id)
+				{
+				fprintf(stderr, "failed %lx vs. %lx\n", ci->id, tci->id);
+				return 0;
+				}
+		tci = ci;
+		}
+	fprintf(stderr, " ok\n");
+#endif /* OPENSSL_NO_TLS1_2 */
 
 	return 1;
 	}
