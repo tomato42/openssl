@@ -1884,7 +1884,7 @@ SSL_set_tlsext_status_ids(con, ids);
 					tv.tv_usec = 0;
 					i=select(width,(void *)&readfds,(void *)&writefds,
 						 NULL,&tv);
-#if defined(OPENSSL_SYS_WINCE) || defined(OPENSSL_SYS_MSDOS)
+#if defined(OPENSSL_SYS_WINCE)
 					if(!i && (!_kbhit() || !read_tty) ) continue;
 #else
 					if(!i && (!((_kbhit()) || (WAIT_OBJECT_0 == WaitForSingleObject(GetStdHandle(STD_INPUT_HANDLE), 0))) || !read_tty) ) continue;
@@ -2095,7 +2095,7 @@ printf("read=%d pending=%d peek=%d\n",k,SSL_pending(con),SSL_peek(con,zbuf,10240
 			}
 
 #if defined(OPENSSL_SYS_WINDOWS) || defined(OPENSSL_SYS_MSDOS)
-#if defined(OPENSSL_SYS_WINCE) || defined(OPENSSL_SYS_MSDOS)
+#if defined(OPENSSL_SYS_WINCE)
 		else if (_kbhit())
 #else
 		else if ((_kbhit()) || (WAIT_OBJECT_0 == WaitForSingleObject(GetStdHandle(STD_INPUT_HANDLE), 0)))
