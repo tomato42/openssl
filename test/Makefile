@@ -69,6 +69,8 @@ HEARTBEATTEST=  heartbeat_test
 CHACHATEST=	chachatest
 POLY1305TEST=	poly1305test
 AEADTEST=	aeadtest
+CONSTTIMETEST=  constant_time_test
+
 TESTS=		alltests
 
 EXE=	$(BNTEST)$(EXE_EXT) $(ECTEST)$(EXE_EXT)  $(ECDSATEST)$(EXE_EXT) $(ECDHTEST)$(EXE_EXT) $(IDEATEST)$(EXE_EXT) \
@@ -80,7 +82,8 @@ EXE=	$(BNTEST)$(EXE_EXT) $(ECTEST)$(EXE_EXT)  $(ECDSATEST)$(EXE_EXT) $(ECDHTEST)
 	$(BFTEST)$(EXE_EXT) $(CASTTEST)$(EXE_EXT) $(SSLTEST)$(EXE_EXT) $(EXPTEST)$(EXE_EXT) $(DSATEST)$(EXE_EXT) $(RSATEST)$(EXE_EXT) \
 	$(EVPTEST)$(EXE_EXT) $(IGETEST)$(EXE_EXT) $(JPAKETEST)$(EXE_EXT) $(SRPTEST)$(EXE_EXT) \
 	$(ASN1TEST)$(EXE_EXT) $(V3NAMETEST)$(EXE_EXT) $(HEARTBEATTEST)$(EXE_EXT) \
-	$(CHACHATEST)$(EXE_EXT) $(POLY1305TEST)$(EXE_EXT) $(AEADTEST)$(EXE_EXT)
+	$(CHACHATEST)$(EXE_EXT) $(POLY1305TEST)$(EXE_EXT) $(AEADTEST)$(EXE_EXT) \
+	$(CONSTTIMETEST)$(EXE_EXT)
 
 # $(METHTEST)$(EXE_EXT)
 
@@ -93,7 +96,8 @@ OBJ=	$(BNTEST).o $(ECTEST).o  $(ECDSATEST).o $(ECDHTEST).o $(IDEATEST).o \
 	$(RANDTEST).o $(DHTEST).o $(ENGINETEST).o $(CASTTEST).o \
 	$(BFTEST).o  $(SSLTEST).o  $(DSATEST).o  $(EXPTEST).o $(RSATEST).o \
 	$(EVPTEST).o $(IGETEST).o $(JPAKETEST).o $(ASN1TEST).o $(V3NAMETEST).o \
-	$(HEARTBEATTEST).o $(CHACHATEST).o $(POLY1305TEST).o $(AEADTEST).o
+	$(HEARTBEATTEST).o $(CHACHATEST).o $(POLY1305TEST).o $(AEADTEST).o \
+	$(HEARTBEATTEST).o $(CONSTTIMETEST).o
 
 SRC=	$(BNTEST).c $(ECTEST).c  $(ECDSATEST).c $(ECDHTEST).c $(IDEATEST).c \
 	$(MD2TEST).c  $(MD4TEST).c $(MD5TEST).c \
@@ -104,7 +108,7 @@ SRC=	$(BNTEST).c $(ECTEST).c  $(ECDSATEST).c $(ECDHTEST).c $(IDEATEST).c \
 	$(BFTEST).c  $(SSLTEST).c $(DSATEST).c   $(EXPTEST).c $(RSATEST).c \
 	$(EVPTEST).c $(IGETEST).c $(JPAKETEST).c $(SRPTEST).c $(ASN1TEST).c \
 	$(V3NAMETEST).c $(HEARTBEATTEST).c $(CHACHATEST).c \
-	$(POLY1305TEST).c $(AEADTEST).c
+	$(POLY1305TEST).c $(AEADTEST).c $(CONSTTIMETEST).c
 
 EXHEADER= 
 HEADER=	testutil.h $(EXHEADER)
@@ -148,7 +152,7 @@ alltests: \
 	test_gen test_req test_pkcs7 test_verify test_dh test_dsa \
 	test_ss test_ca test_engine test_evp test_ssl test_tsa test_ige \
 	test_jpake test_srp test_cms test_ocsp test_v3name test_heartbeat \
-	test_chacha test_poly1305 test_aead
+	test_chacha test_poly1305 test_aead test_constant_time
 
 test_evp: $(EVPTEST)$(EXE_EXT) evptests.txt
 	../util/shlib_wrap.sh ./$(EVPTEST) evptests.txt
@@ -362,6 +366,10 @@ test_aead: $(AEADTEST)$(EXE_EXT) chacha20_poly1305_tests.txt \
 	../util/shlib_wrap.sh ./$(AEADTEST) aes-256-gcm \
 		aes_256_gcm_tests.txt
 
+test_constant_time: $(CONSTTIMETEST)$(EXE_EXT)
+	@echo "Test constant time utilites"
+	../util/shlib_wrap.sh ./$(CONSTTIMETEST)
+
 lint:
 	lint -DLINT $(INCLUDES) $(SRC)>fluff
 
@@ -535,6 +543,9 @@ $(V3NAMETEST)$(EXE_EXT): $(V3NAMETEST).o $(DLIBCRYPTO)
 $(HEARTBEATTEST)$(EXE_EXT): $(HEARTBEATTEST).o $(DLIBCRYPTO)
 	@target=$(HEARTBEATTEST); $(BUILD_CMD_STATIC)
 
+$(CONSTTIMETEST)$(EXE_EXT): $(CONSTTIMETEST).o
+	@target=$(CONSTTIMETEST) $(BUILD_CMD)
+
 #$(AESTEST).o: $(AESTEST).c
 #	$(CC) -c $(CFLAGS) -DINTERMEDIATE_VALUE_KAT -DTRACE_KAT_MCT $(AESTEST).c
 
@@ -580,6 +591,9 @@ bntest.o: ../include/openssl/stack.h ../include/openssl/symhacks.h
 bntest.o: ../include/openssl/x509.h ../include/openssl/x509_vfy.h bntest.c
 casttest.o: ../e_os.h ../include/openssl/cast.h ../include/openssl/e_os2.h
 casttest.o: ../include/openssl/opensslconf.h casttest.c
+constant_time_test.o: ../crypto/constant_time_locl.h ../e_os.h
+constant_time_test.o: ../include/openssl/e_os2.h
+constant_time_test.o: ../include/openssl/opensslconf.h constant_time_test.c
 destest.o: ../include/openssl/des.h ../include/openssl/des_old.h
 destest.o: ../include/openssl/e_os2.h ../include/openssl/opensslconf.h
 destest.o: ../include/openssl/ossl_typ.h ../include/openssl/safestack.h

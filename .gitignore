@@ -88,4 +88,5 @@ lib
 Makefile.save
 *.bak
 *.orig
-
+tags
+TAGS
