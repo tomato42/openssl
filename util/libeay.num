@@ -4414,7 +4414,7 @@ i2d_re_X509_tbs                         4773	EXIST::FUNCTION:
 CRYPTO_poly1305_update                  4774	EXIST::FUNCTION:
 EVP_AEAD_CTX_init                       4775	EXIST::FUNCTION:
 EVP_AEAD_CTX_cleanup                    4776	EXIST::FUNCTION:
-EVP_AEAD_CTX_seal                       4776	EXIST::FUNCTION:
+EVP_AEAD_CTX_seal                       4777	EXIST::FUNCTION:
 EVP_AEAD_CTX_open                       4778	EXIST::FUNCTION:
 EVP_aead_chacha20_poly1305              4779	EXIST::FUNCTION:CHACHA,POLY1305
 EVP_AEAD_max_tag_len                    4780	EXIST::FUNCTION:
