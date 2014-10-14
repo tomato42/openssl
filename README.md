@@ -3,7 +3,7 @@ OpenSSL
 
 This is a fork of the official OpenSSL github repository at https://github.com/openssl/openssl.git
 
-You're looking at the 1.0.2-chacha branch, which aligns with the OpenSSL_1_0_2-stable branch.
+You're looking at the 1.0.2-chacha branch, which aligns with the OpenSSL_1_0_2-stable branch (which currently is at beta4 stage).
 
 The main reason of the fork is to include ChaCha20, Poly1305, other (experimental/insecure) ciphers, and to add some extra features to s_client. It should compile 'as least as good' as the official OpenSSL_1_0_2-stable branch.
 
