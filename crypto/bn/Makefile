@@ -135,9 +135,9 @@ ppc-mont.s:	asm/ppc-mont.pl;$(PERL) asm/ppc-mont.pl $(PERLASM_SCHEME) $@
 ppc64-mont.s:	asm/ppc64-mont.pl;$(PERL) asm/ppc64-mont.pl $(PERLASM_SCHEME) $@
 
 alpha-mont.s:	asm/alpha-mont.pl
-	(preproc=/tmp/$$$$.$@; trap "rm $$preproc" INT; \
+	(preproc=$$$$.$@.S; trap "rm $$preproc" INT; \
 	$(PERL) asm/alpha-mont.pl > $$preproc && \
-	$(CC) -E $$preproc > $@ && rm $$preproc)
+	$(CC) -E -P $$preproc > $@ && rm $$preproc)
 
 # GNU make "catch all"
 %-mont.S:	asm/%-mont.pl;	$(PERL) $< $(PERLASM_SCHEME) $@
@@ -253,7 +253,6 @@ bn_exp.o: ../../include/openssl/lhash.h ../../include/openssl/opensslconf.h
 bn_exp.o: ../../include/openssl/opensslv.h ../../include/openssl/ossl_typ.h
 bn_exp.o: ../../include/openssl/safestack.h ../../include/openssl/stack.h
 bn_exp.o: ../../include/openssl/symhacks.h ../cryptlib.h bn_exp.c bn_lcl.h
-bn_exp.o: rsaz_exp.h
 bn_exp2.o: ../../e_os.h ../../include/openssl/bio.h ../../include/openssl/bn.h
 bn_exp2.o: ../../include/openssl/buffer.h ../../include/openssl/crypto.h
 bn_exp2.o: ../../include/openssl/e_os2.h ../../include/openssl/err.h

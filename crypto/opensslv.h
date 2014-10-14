@@ -29,11 +29,11 @@ extern "C" {
  * (Prior to 0.9.5a beta1, a different scheme was used: MMNNFFRBB for
  *  major minor fix final patch/beta)
  */
-#define OPENSSL_VERSION_NUMBER	0x10002003L
+#define OPENSSL_VERSION_NUMBER	0x10002004L
 #ifdef OPENSSL_FIPS
-#define OPENSSL_VERSION_TEXT	"OpenSSL 1.0.2-chacha (beta3-fips-dev)"
+#define OPENSSL_VERSION_TEXT	"OpenSSL 1.0.2-chacha (beta4-fips-dev)"
 #else
-#define OPENSSL_VERSION_TEXT	"OpenSSL 1.0.2-chacha (beta3-dev)"
+#define OPENSSL_VERSION_TEXT	"OpenSSL 1.0.2-chacha (beta4-dev)"
 #endif
 #define OPENSSL_VERSION_PTEXT	" part of " OPENSSL_VERSION_TEXT
 
