@@ -685,8 +685,13 @@ struct ssl_session_st
 #define SSL_MODE_SEND_CLIENTHELLO_TIME 0x00000020L
 #define SSL_MODE_SEND_SERVERHELLO_TIME 0x00000040L
 /* Send TLS_FALLBACK_SCSV in the ClientHello.
- * To be set by applications that reconnect with a downgraded protocol
- * version; see draft-ietf-tls-downgrade-scsv-00 for details. */
+ * To be set only by applications that reconnect with a downgraded protocol
+ * version; see draft-ietf-tls-downgrade-scsv-00 for details.
+ *
+ * DO NOT ENABLE THIS if your application attempts a normal handshake.
+ * Only use this in explicit fallback retries, following the guidance
+ * in draft-ietf-tls-downgrade-scsv-00.
+ */
 #define SSL_MODE_SEND_FALLBACK_SCSV 0x00000080L
 
 /* Cert related flags */
@@ -2589,6 +2594,7 @@ void ERR_load_SSL_strings(void);
 #define SSL_F_SSL_CERT_INST				 222
 #define SSL_F_SSL_CERT_INSTANTIATE			 214
 #define SSL_F_SSL_CERT_NEW				 162
+#define SSL_F_SSL_CHECK_CLIENTHELLO_TLSEXT_LATE		 335
 #define SSL_F_SSL_CHECK_PRIVATE_KEY			 163
 #define SSL_F_SSL_CHECK_SERVERHELLO_TLSEXT		 280
 #define SSL_F_SSL_CHECK_SRVR_ECC_CERT_AND_ALG		 279

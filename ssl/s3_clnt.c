@@ -225,6 +225,14 @@ int ssl3_connect(SSL *s)
 			s->renegotiate=1;
 			s->state=SSL_ST_CONNECT;
 			s->ctx->stats.sess_connect_renegotiate++;
+#ifndef OPENSSL_NO_TLSEXT
+			/*
+			 * If renegotiating, the server may choose to not issue
+			 * a new ticket, so reset the flag. It will be set to
+			 * the right value when parsing ServerHello extensions.
+			 */
+			s->tlsext_ticket_expected = 0;
+#endif
 			/* break */
 		case SSL_ST_BEFORE:
 		case SSL_ST_CONNECT:
@@ -2168,10 +2176,16 @@ int ssl3_get_certificate_request(SSL *s)
 			s->cert->pkeys[i].digest = NULL;
 			s->cert->pkeys[i].valid_flags = 0;
 			}
-		if ((llen & 1) || !tls1_process_sigalgs(s, p, llen))
+		if ((llen & 1) || !tls1_save_sigalgs(s, p, llen))
 			{
 			ssl3_send_alert(s,SSL3_AL_FATAL,SSL_AD_DECODE_ERROR);
 			SSLerr(SSL_F_SSL3_GET_CERTIFICATE_REQUEST,SSL_R_SIGNATURE_ALGORITHMS_ERROR);
+			goto err;
+			}
+		if (!tls1_process_sigalgs(s))
+			{
+			ssl3_send_alert(s,SSL3_AL_FATAL, SSL_AD_INTERNAL_ERROR);
+			SSLerr(SSL_F_SSL3_GET_CERTIFICATE_REQUEST, ERR_R_MALLOC_FAILURE);
 			goto err;
 			}
 		p += llen;
@@ -2322,7 +2336,7 @@ int ssl3_get_new_session_ticket(SSL *s)
 		}
 	memcpy(s->session->tlsext_tick, p, ticklen);
 	s->session->tlsext_ticklen = ticklen;
-	/* There are two ways to detect a resumed ticket sesion.
+	/* There are two ways to detect a resumed ticket session.
 	 * One is to set an appropriate session ID and then the server
 	 * must return a match in ServerHello. This allows the normal
 	 * client session ID matching to work and we know much 
