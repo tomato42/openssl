@@ -407,6 +407,12 @@ SSL_CTX_callback_ctrl(ssl,SSL_CTRL_SET_TLSEXT_TICKET_KEY_CB,(void (*)(void))cb)
 #define TLS1_CK_PSK_WITH_AES_128_CBC_SHA                0x0300008C
 #define TLS1_CK_PSK_WITH_AES_256_CBC_SHA                0x0300008D
 
+/* RSA-PSK ciphersuites from 4279 */
+#define TLS1_CK_RSA_PSK_WITH_RC4_128_SHA                0x03000092
+#define TLS1_CK_RSA_PSK_WITH_3DES_EDE_CBC_SHA           0x03000093
+#define TLS1_CK_RSA_PSK_WITH_AES_128_CBC_SHA            0x03000094
+#define TLS1_CK_RSA_PSK_WITH_AES_256_CBC_SHA            0x03000095
+
 /* Additional TLS ciphersuites from expired Internet Draft
  * draft-ietf-tls-56-bit-ciphersuites-01.txt
  * (available if TLS1_ALLOW_EXPERIMENTAL_CIPHERSUITES is defined, see
@@ -649,6 +655,12 @@ SSL_CTX_callback_ctrl(ssl,SSL_CTRL_SET_TLSEXT_TICKET_KEY_CB,(void (*)(void))cb)
 #define TLS1_TXT_PSK_WITH_3DES_EDE_CBC_SHA		"PSK-3DES-EDE-CBC-SHA"
 #define TLS1_TXT_PSK_WITH_AES_128_CBC_SHA		"PSK-AES128-CBC-SHA"
 #define TLS1_TXT_PSK_WITH_AES_256_CBC_SHA		"PSK-AES256-CBC-SHA"
+
+/* RSA-PSK ciphersuites from 4279 */
+#define TLS1_TXT_RSA_PSK_WITH_RC4_128_SHA           "RSA-PSK-RC4-SHA"
+#define TLS1_TXT_RSA_PSK_WITH_3DES_EDE_CBC_SHA      "RSA-PSK-3DES-EDE-CBC-SHA"
+#define TLS1_TXT_RSA_PSK_WITH_AES_128_CBC_SHA       "RSA-PSK-AES128-CBC-SHA"
+#define TLS1_TXT_RSA_PSK_WITH_AES_256_CBC_SHA       "RSA-PSK-AES256-CBC-SHA"
 
 /* SRP ciphersuite from RFC 5054 */
 #define TLS1_TXT_SRP_SHA_WITH_3DES_EDE_CBC_SHA		"SRP-3DES-EDE-CBC-SHA"

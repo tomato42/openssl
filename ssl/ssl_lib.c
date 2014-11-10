@@ -2435,8 +2435,14 @@ void ssl_set_cert_masks(CERT *c, const SSL_CIPHER *cipher)
 
 #ifndef OPENSSL_NO_PSK
 	mask_k |= SSL_kPSK;
+#ifndef OPENSSL_NO_RSA
+	mask_k |= SSL_kRSAPSK;
+#endif
 	mask_a |= SSL_aPSK;
 	emask_k |= SSL_kPSK;
+#ifndef OPENSSL_NO_RSA
+	emask_k |= SSL_kRSAPSK;
+#endif
 	emask_a |= SSL_aPSK;
 #endif
 

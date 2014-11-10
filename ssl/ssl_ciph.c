@@ -254,7 +254,8 @@ static const SSL_CIPHER cipher_aliases[]={
 	{0,SSL_TXT_kECDHE,0,  SSL_kEECDH,0,0,0,0,0,0,0,0},
 	{0,SSL_TXT_ECDH,0,    SSL_kECDHr|SSL_kECDHe|SSL_kEECDH,0,0,0,0,0,0,0,0},
 
-        {0,SSL_TXT_kPSK,0,    SSL_kPSK,  0,0,0,0,0,0,0,0},
+	{0,SSL_TXT_kPSK,0,    SSL_kPSK,  0,0,0,0,0,0,0,0},
+	{0,SSL_TXT_kRSAPSK,0, SSL_kRSAPSK,  0,0,0,0,0,0,0,0},
 	{0,SSL_TXT_kSRP,0,    SSL_kSRP,  0,0,0,0,0,0,0,0},
 	{0,SSL_TXT_kGOST,0, SSL_kGOST,0,0,0,0,0,0,0,0},
 
@@ -268,7 +269,7 @@ static const SSL_CIPHER cipher_aliases[]={
 	{0,SSL_TXT_aECDH,0,   0,SSL_aECDH, 0,0,0,0,0,0,0},
 	{0,SSL_TXT_aECDSA,0,  0,SSL_aECDSA,0,0,0,0,0,0,0},
 	{0,SSL_TXT_ECDSA,0,   0,SSL_aECDSA, 0,0,0,0,0,0,0},
-        {0,SSL_TXT_aPSK,0,    0,SSL_aPSK,  0,0,0,0,0,0,0},
+	{0,SSL_TXT_aPSK,0,    0,SSL_aPSK,  0,0,0,0,0,0,0},
 	{0,SSL_TXT_aGOST94,0,0,SSL_aGOST94,0,0,0,0,0,0,0},
 	{0,SSL_TXT_aGOST01,0,0,SSL_aGOST01,0,0,0,0,0,0,0},
 	{0,SSL_TXT_aGOST,0,0,SSL_aGOST94|SSL_aGOST01,0,0,0,0,0,0,0},
@@ -285,6 +286,7 @@ static const SSL_CIPHER cipher_aliases[]={
 	{0,SSL_TXT_ADH,0,     SSL_kEDH,SSL_aNULL,0,0,0,0,0,0,0},
 	{0,SSL_TXT_AECDH,0,   SSL_kEECDH,SSL_aNULL,0,0,0,0,0,0,0},
         {0,SSL_TXT_PSK,0,     SSL_kPSK,SSL_aPSK,0,0,0,0,0,0,0},
+        {0,SSL_TXT_RSAPSK,0, SSL_kRSAPSK,SSL_aRSA,0,0,0,0,0,0,0},
 	{0,SSL_TXT_SRP,0,     SSL_kSRP,0,0,0,0,0,0,0,0},
 
 
@@ -793,7 +795,7 @@ static void ssl_cipher_get_disabled(unsigned long *mkey, unsigned long *auth, un
 	*auth |= SSL_aECDH;
 #endif
 #ifdef OPENSSL_NO_PSK
-	*mkey |= SSL_kPSK;
+	*mkey |= SSL_kPSK|SSL_kRSAPSK;
 	*auth |= SSL_aPSK;
 #endif
 #ifdef OPENSSL_NO_SRP
@@ -1562,7 +1564,8 @@ STACK_OF(SSL_CIPHER) *ssl_create_cipher_list(const SSL_METHOD *ssl_method,
 	ssl_cipher_apply_rule(0, 0, SSL_aECDH, 0, 0, 0, 0, CIPHER_ORD, -1, &head, &tail);
 	/* ssl_cipher_apply_rule(0, 0, SSL_aDH, 0, 0, 0, 0, CIPHER_ORD, -1, &head, &tail); */
 	ssl_cipher_apply_rule(0, SSL_kRSA, 0, 0, 0, 0, 0, CIPHER_ORD, -1, &head, &tail);
-	ssl_cipher_apply_rule(0, SSL_kPSK, 0,0, 0, 0, 0, CIPHER_ORD, -1, &head, &tail);
+	ssl_cipher_apply_rule(0, SSL_kRSAPSK, 0, 0, 0, 0, 0, CIPHER_ORD, -1, &head, &tail);
+	ssl_cipher_apply_rule(0, SSL_kPSK, 0, 0, 0, 0, 0, CIPHER_ORD, -1, &head, &tail);
 	ssl_cipher_apply_rule(0, SSL_kKRB5, 0,0, 0, 0, 0, CIPHER_ORD, -1, &head, &tail);
 
 	/* RC4 is sort-of broken -- move the the end */
@@ -1743,6 +1746,9 @@ char *SSL_CIPHER_description(const SSL_CIPHER *cipher, char *buf, int len)
 		break;
 	case SSL_kGOST:
 		kx="GOST";
+		break;
+	case SSL_kRSAPSK:
+		kx="RSAPSK";
 		break;
 	default:
 		kx="unknown";

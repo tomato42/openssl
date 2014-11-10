@@ -460,7 +460,8 @@ int ssl3_accept(SSL *s)
 			/* only send if a DH key exchange, fortezza or
 			 * RSA but we have a sign only certificate
 			 *
-			 * PSK: may send PSK identity hints
+			 * PSK|RSAPSK: may send PSK identity hints.
+			 * Send ServerKeyExchange if PSK identity hint is provided.
 			 *
 			 * For ECC ciphersuites, we send a serverKeyExchange
 			 * message only if the cipher suite is either
@@ -469,10 +470,12 @@ int ssl3_accept(SSL *s)
 			 * public key for key exchange.
 			 */
 			if (s->s3->tmp.use_rsa_tmp
-			/* PSK: send ServerKeyExchange if PSK identity
-			 * hint if provided */
 #ifndef OPENSSL_NO_PSK
-			    || ((alg_k & SSL_kPSK) && s->ctx->psk_identity_hint)
+			    || ((alg_k & (SSL_kPSK
+#ifndef OPENSSL_NO_RSA
+					  |SSL_kRSAPSK
+#endif
+					  )) && s->ctx->psk_identity_hint)
 #endif
 #ifndef OPENSSL_NO_SRP
 			    /* SRP: send ServerKeyExchange */
@@ -518,9 +521,11 @@ int ssl3_accept(SSL *s)
 				(s->s3->tmp.new_cipher->algorithm_auth & SSL_aKRB5) ||
 				/* don't request certificate for SRP auth */
 				(s->s3->tmp.new_cipher->algorithm_auth & SSL_aSRP)
-				/* With normal PSK Certificates and
+#ifndef OPENSSL_NO_PSK
+				/* With normal PSK, Certificates and
 				 * Certificate Requests are omitted */
 				|| (s->s3->tmp.new_cipher->algorithm_mkey & SSL_kPSK))
+#endif
 				{
 				/* no cert request */
 				skip=1;
@@ -1836,7 +1841,11 @@ int ssl3_send_server_key_exchange(SSL *s)
 		else 
 #endif /* !OPENSSL_NO_ECDH */
 #ifndef OPENSSL_NO_PSK
-			if (type & SSL_kPSK)
+			if (type & (SSL_kPSK
+#ifndef OPENSSL_NO_RSA
+				|SSL_kRSAPSK
+#endif
+				    ))
 				{
 				/* reserve size for record length and PSK identity hint*/
 				n+=2+strlen(s->ctx->psk_identity_hint);
@@ -1860,7 +1869,7 @@ int ssl3_send_server_key_exchange(SSL *s)
 			r[3]=s->srp_ctx.B;
 			}
 		else 
-#endif
+#endif /*! OPENSSL_NO_SRP */
 			{
 			al=SSL_AD_HANDSHAKE_FAILURE;
 			SSLerr(SSL_F_SSL3_SEND_SERVER_KEY_EXCHANGE,SSL_R_UNKNOWN_KEY_EXCHANGE_TYPE);
@@ -1878,7 +1887,13 @@ int ssl3_send_server_key_exchange(SSL *s)
 			}
 
 		if (!(s->s3->tmp.new_cipher->algorithm_auth & (SSL_aNULL|SSL_aSRP))
-			&& !(s->s3->tmp.new_cipher->algorithm_mkey & SSL_kPSK))
+#ifndef OPENSSL_NO_PSK
+			&& !(s->s3->tmp.new_cipher->algorithm_mkey & (SSL_kPSK
+#ifndef OPENSSL_NO_RSA
+								      |SSL_kRSAPSK
+#endif
+								      )))
+#endif
 			{
 			if ((pkey=ssl_get_sign_pkey(s,s->s3->tmp.new_cipher,&md))
 				== NULL)
@@ -1943,7 +1958,11 @@ int ssl3_send_server_key_exchange(SSL *s)
 #endif
 
 #ifndef OPENSSL_NO_PSK
-		if (type & SSL_kPSK)
+		if (type & (SSL_kPSK
+#ifndef OPENSSL_NO_RSA
+			    |SSL_kRSAPSK
+#endif
+			    ))
 			{
 			/* copy PSK identity hint */
 			s2n(strlen(s->ctx->psk_identity_hint), p); 
@@ -1958,7 +1977,11 @@ int ssl3_send_server_key_exchange(SSL *s)
 			/* n is the length of the params, they start at &(d[4])
 			 * and p points to the space at the end. */
 #ifndef OPENSSL_NO_RSA
-			if (pkey->type == EVP_PKEY_RSA && !SSL_USE_SIGALGS(s))
+			if (pkey->type == EVP_PKEY_RSA && !SSL_USE_SIGALGS(s)
+#ifndef OPENSSL_NO_PSK
+					&& !(type & SSL_kRSAPSK)
+#endif
+					)
 				{
 				q=md_buf;
 				j=0;
@@ -2840,8 +2863,195 @@ int ssl3_get_client_key_exchange(SSL *s)
 			if (psk_err != 0)
 				goto f_err;
 			}
-		else
+	else
 #endif
+#ifndef OPENSSL_NO_RSA
+#ifndef OPENSSL_NO_PSK
+		if (alg_k & SSL_kRSAPSK)
+			{
+			unsigned char rand_premaster_secret[SSL_MAX_MASTER_KEY_LENGTH];
+			int decrypt_len;
+			unsigned char decrypt_good, version_good;
+			unsigned char *orig_p = p;
+
+			unsigned int psk_len;
+
+			const unsigned int pre_master_secret_prefix = 48;
+			unsigned char psk_or_pre_ms[PSK_MAX_PSK_LEN * 2 + 4];
+			unsigned int pre_ms_len;
+			unsigned char *t = psk_or_pre_ms;
+
+			char identity[PSK_MAX_IDENTITY_LEN + 1];
+			int identity_len;
+
+			int epms_len;
+
+			int psk_err = 1;
+
+			/* No server callback? Bail out */
+			if (s->psk_server_callback == NULL)
+				{
+				SSLerr(SSL_F_SSL3_GET_CLIENT_KEY_EXCHANGE, SSL_R_PSK_NO_SERVER_CB);
+				goto f_err;
+				}
+
+			/* FIX THIS UP EAY EAY EAY EAY */
+			if (s->s3->tmp.use_rsa_tmp)
+				{
+				if ((s->cert != NULL) && (s->cert->rsa_tmp != NULL))
+					rsa=s->cert->rsa_tmp;
+				/* Don't do a callback because rsa_tmp should
+				 * be sent already */
+				if (rsa == NULL)
+					{
+					al=SSL_AD_HANDSHAKE_FAILURE;
+					SSLerr(SSL_F_SSL3_GET_CLIENT_KEY_EXCHANGE, SSL_R_MISSING_TMP_RSA_PKEY);
+					goto f_err;
+					}
+				}
+			else
+				{
+				pkey=s->cert->pkeys[SSL_PKEY_RSA_ENC].privatekey;
+				if ((pkey == NULL) ||
+				    (pkey->type != EVP_PKEY_RSA) ||
+				    (pkey->pkey.rsa == NULL))
+					{
+					al=SSL_AD_HANDSHAKE_FAILURE;
+					SSLerr(SSL_F_SSL3_GET_CLIENT_KEY_EXCHANGE, SSL_R_MISSING_RSA_CERTIFICATE);
+					goto f_err;
+					}
+				rsa=pkey->pkey.rsa;
+				}
+
+
+			/* Extract the PSK identity */
+			if (n < (2 + 2)) /* 2 bytes for the identity len, 2 bytes for the epms len */
+				{
+				SSLerr(SSL_F_SSL3_GET_CLIENT_KEY_EXCHANGE, SSL_R_LENGTH_MISMATCH);
+				goto f_err;
+				}
+
+			n2s(p, identity_len);
+			if (identity_len > PSK_MAX_IDENTITY_LEN)
+				{
+				SSLerr(SSL_F_SSL3_GET_CLIENT_KEY_EXCHANGE, SSL_R_DATA_LENGTH_TOO_LONG);
+				goto f_err;
+				}
+
+			if (n < (2 + identity_len + 2)) /* as above, plus the identity len */
+				{
+				SSLerr(SSL_F_SSL3_GET_CLIENT_KEY_EXCHANGE, SSL_R_LENGTH_MISMATCH);
+				goto f_err;
+				}
+
+			memset(identity, 0, sizeof(identity));
+			memcpy(identity, p, identity_len);
+			p += identity_len;
+
+			/* fill the pre master secret with random bytes */
+			if (RAND_pseudo_bytes(psk_or_pre_ms, sizeof(psk_or_pre_ms)) <= 0)
+				goto err;
+
+			/* read the psk (into the beginning of the psk_or_pre_ms buffer */
+			psk_len = s->psk_server_callback(s, identity, psk_or_pre_ms, sizeof(psk_or_pre_ms));
+
+			if (psk_len > PSK_MAX_PSK_LEN)
+				{
+				SSLerr(SSL_F_SSL3_GET_CLIENT_KEY_EXCHANGE,
+				       ERR_R_INTERNAL_ERROR);
+				goto rsapsk_err;
+				}
+			else if (psk_len == 0)
+				{
+				SSLerr(SSL_F_SSL3_GET_CLIENT_KEY_EXCHANGE,
+				       SSL_R_PSK_IDENTITY_NOT_FOUND);
+				al=SSL_AD_UNKNOWN_PSK_IDENTITY;
+				goto rsapsk_err;
+				}
+
+			/* move on onto decoding the 48 encrypted bytes */
+
+			/* how many bytes to decode? */
+			n2s(p, epms_len);
+
+			if (n != (2 + identity_len + 2 + epms_len)) /* as above */
+				{
+				SSLerr(SSL_F_SSL3_GET_CLIENT_KEY_EXCHANGE,
+				       SSL_R_LENGTH_MISMATCH);
+				goto rsapsk_err;
+				}
+
+			/* decode in place into p */
+			decrypt_len = RSA_private_decrypt(epms_len, p, p, rsa, RSA_PKCS1_PADDING);
+			decrypt_good = constant_time_eq_int_8(decrypt_len, 48);
+
+			/* check the version sent by the client */
+			version_good = constant_time_eq_8(p[0], (unsigned)(s->client_version>>8));
+			version_good &= constant_time_eq_8(p[1], (unsigned)(s->client_version&0xff));
+
+			decrypt_good &= version_good;
+
+			for (i = 0; i < (int) sizeof(rand_premaster_secret); i++)
+				p[i] = constant_time_select_8(decrypt_good, p[i], rand_premaster_secret[i]);
+
+			/* build the pre master secret. it should look like this:
+			 * 48 (2b) + version (2b) + random (46b) + psk_len (2b) + psk */
+			pre_ms_len = 2 + 2 + 46 + 2 + psk_len;
+
+			/* the PSK is at the beginning of psk_or_pre_ms, move at the end */
+			memmove(psk_or_pre_ms + 52, psk_or_pre_ms, psk_len);
+
+			/* fill the "48" in */
+			s2n(pre_master_secret_prefix, t);
+
+			/* fill the 2 bytes version + the 46 random bytes (decrypted earlier with RSA) */
+			memcpy(t, p, 48);
+			t += 48;
+
+			/* fill the psk_len */
+			s2n(psk_len, t);
+
+			/* psk_or_pre_ms now contains the pre master secret */
+
+			/* set the identity in the session */
+			if (s->session->psk_identity != NULL)
+				OPENSSL_free(s->session->psk_identity);
+
+			s->session->psk_identity = BUF_strdup(identity);
+			OPENSSL_cleanse(identity, sizeof(identity));
+
+			if (s->session->psk_identity == NULL)
+				{
+					SSLerr(SSL_F_SSL3_GET_CLIENT_KEY_EXCHANGE, ERR_R_MALLOC_FAILURE);
+					goto rsapsk_err;
+				}
+
+			/* set the identity hint in the session */
+			if (s->session->psk_identity_hint != NULL)
+				OPENSSL_free(s->session->psk_identity_hint);
+			s->session->psk_identity_hint = BUF_strdup(s->ctx->psk_identity_hint);
+			if (s->ctx->psk_identity_hint != NULL && s->session->psk_identity_hint == NULL)
+				{
+					SSLerr(SSL_F_SSL3_GET_CLIENT_KEY_EXCHANGE, ERR_R_MALLOC_FAILURE);
+					goto rsapsk_err;
+				}
+
+			/* set the premaster key */
+			s->session->master_key_length =
+				s->method->ssl3_enc->generate_master_secret(s,
+					s->session->master_key,
+					psk_or_pre_ms, pre_ms_len);
+
+			psk_err = 0;
+	rsapsk_err:
+			OPENSSL_cleanse(orig_p, n); /* clear the whole payload area */
+			if (psk_err != 0)
+				goto f_err;
+			}
+
+	else
+#endif /* !OPENSSL_NO_PSK */
+#endif /* !OPENSSL_NO_RSA */
 #ifndef OPENSSL_NO_SRP
 		if (alg_k & SSL_kSRP)
 			{
