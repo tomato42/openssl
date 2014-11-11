@@ -9,9 +9,10 @@ The main reason of the fork is to include ChaCha20, Poly1305, other (experimenta
 
 #### Additions
 * Added ChaCha20 and Poly1305 ciphers (backported from the upstream 1.0.2-aead branch)
-* Added SHA256 CAMELLIA ciphers (from the upstream master branch)
-* Added HMAC based CAMELLIA ciphers
-* Enabled experimental features
+* [Added TLS-RSA-PSK ciphers](https://github.com/PeterMosmans/openssl/commit/ba47950a02a380413f3e5dbf8d94a89eb9e2fb42)
+* [Added SHA256 CAMELLIA ciphers (cherry-picked from the upstream master branch)](https://github.com/PeterMosmans/openssl/commit/535e141f0e9df912232a6bd2ece72f30945962a1)
+* [Added HMAC based CAMELLIA ciphers](https://github.com/PeterMosmans/openssl/commit/8efbb71e40b99e86741aafd6a3c95b941a26e5ce)
+* [Enabled experimental features](https://github.com/PeterMosmans/openssl/commit/8c722ce5fb005a1886e2d76e788cc3441592490e)
 * Additions to s_client:
   * -proxy (RT #2651)
   * -starttls telnet (RT #2451)
@@ -28,12 +29,14 @@ The main reason of the fork is to include ChaCha20, Poly1305, other (experimenta
 The latest binary Windows 64-bit builds of these branches can be found at http://onwebsecurity.com/cryptography/openssl
 The OpenSSL version string of these binaries (#define OPENSSL_VERSION_TEXT) include the branch name and commit hash.
 
-Please see the official OpenSSL repository for all relevant license / copyright info. This repository is merely a fork of their great work with some minimal additions and changes.
+Please see the official OpenSSL repository for all relevant license / copyright info. This repository is merely a fork of their great work with some minimal merges, additions and changes.
 
 
 #### Supported ciphers
-At the moment 177
+At the moment 181
 ```
+openssl ciphers -l -V "ALL:COMPLEMENTOFALL"
+
           0xCC,0x14 - ECDHE-ECDSA-CHACHA20-POLY1305 TLSv1.2 Kx=ECDH     Au=ECDSA Enc=ChaCha20(256) Mac=AEAD
           0xCC,0x13 - ECDHE-RSA-CHACHA20-POLY1305 TLSv1.2 Kx=ECDH     Au=RSA  Enc=ChaCha20(256) Mac=AEAD
           0xCC,0x15 - DHE-RSA-CHACHA20-POLY1305 TLSv1.2 Kx=DH       Au=RSA  Enc=ChaCha20(256) Mac=AEAD
@@ -68,8 +71,8 @@ At the moment 177
           0x00,0x87 - DHE-DSS-CAMELLIA256-SHA SSLv3 Kx=DH       Au=DSS  Enc=Camellia(256) Mac=SHA1
           0x00,0x86 - DH-RSA-CAMELLIA256-SHA  SSLv3 Kx=DH/RSA   Au=DH   Enc=Camellia(256) Mac=SHA1
           0x00,0x85 - DH-DSS-CAMELLIA256-SHA  SSLv3 Kx=DH/DSS   Au=DH   Enc=Camellia(256) Mac=SHA1
-          0x00,0x81 - GOST2001-GOST89-GOST89  SSLv3 Kx=VKO      Au=GOST01 Enc=GOST89(256) Mac=GOST89
-          0x00,0x80 - GOST94-GOST89-GOST89    SSLv3 Kx=VKO      Au=GOST94 Enc=GOST89(256) Mac=GOST89
+          0x00,0x81 - GOST2001-GOST89-GOST89  SSLv3 Kx=GOST     Au=GOST01 Enc=GOST89(256) Mac=GOST89
+          0x00,0x80 - GOST94-GOST89-GOST89    SSLv3 Kx=GOST     Au=GOST94 Enc=GOST89(256) Mac=GOST89
           0xC0,0x19 - AECDH-AES256-SHA        SSLv3 Kx=ECDH     Au=None Enc=AES(256)  Mac=SHA1
           0x00,0xA7 - ADH-AES256-GCM-SHA384   TLSv1.2 Kx=DH       Au=None Enc=AESGCM(256) Mac=AEAD
           0x00,0x6D - ADH-AES256-SHA256       TLSv1.2 Kx=DH       Au=None Enc=AES(256)  Mac=SHA256
@@ -89,6 +92,7 @@ At the moment 177
           0x00,0x35 - AES256-SHA              SSLv3 Kx=RSA      Au=RSA  Enc=AES(256)  Mac=SHA1
           0x00,0xC0 - CAMELLIA256-SHA256      TLSv1.2 Kx=RSA      Au=RSA  Enc=Camellia(256) Mac=SHA256
           0x00,0x84 - CAMELLIA256-SHA         SSLv3 Kx=RSA      Au=RSA  Enc=Camellia(256) Mac=SHA1
+          0x00,0x95 - RSA-PSK-AES256-CBC-SHA  SSLv3 Kx=RSAPSK   Au=RSA  Enc=AES(256)  Mac=SHA1
           0x00,0x8D - PSK-AES256-CBC-SHA      SSLv3 Kx=PSK      Au=PSK  Enc=AES(256)  Mac=SHA1
           0xC0,0x2F - ECDHE-RSA-AES128-GCM-SHA256 TLSv1.2 Kx=ECDH     Au=RSA  Enc=AESGCM(128) Mac=AEAD
           0xC0,0x2B - ECDHE-ECDSA-AES128-GCM-SHA256 TLSv1.2 Kx=ECDH     Au=ECDSA Enc=AESGCM(128) Mac=AEAD
@@ -149,6 +153,7 @@ At the moment 177
           0x00,0x07 - IDEA-CBC-SHA            SSLv3 Kx=RSA      Au=RSA  Enc=IDEA(128) Mac=SHA1
      0x05,0x00,0x80 - IDEA-CBC-MD5            SSLv2 Kx=RSA      Au=RSA  Enc=IDEA(128) Mac=MD5 
      0x03,0x00,0x80 - RC2-CBC-MD5             SSLv2 Kx=RSA      Au=RSA  Enc=RC2(128)  Mac=MD5 
+          0x00,0x94 - RSA-PSK-AES128-CBC-SHA  SSLv3 Kx=RSAPSK   Au=RSA  Enc=AES(128)  Mac=SHA1
           0x00,0x8C - PSK-AES128-CBC-SHA      SSLv3 Kx=PSK      Au=PSK  Enc=AES(128)  Mac=SHA1
           0xC0,0x11 - ECDHE-RSA-RC4-SHA       SSLv3 Kx=ECDH     Au=RSA  Enc=RC4(128)  Mac=SHA1
           0xC0,0x07 - ECDHE-ECDSA-RC4-SHA     SSLv3 Kx=ECDH     Au=ECDSA Enc=RC4(128)  Mac=SHA1
@@ -160,6 +165,7 @@ At the moment 177
           0x00,0x05 - RC4-SHA                 SSLv3 Kx=RSA      Au=RSA  Enc=RC4(128)  Mac=SHA1
           0x00,0x04 - RC4-MD5                 SSLv3 Kx=RSA      Au=RSA  Enc=RC4(128)  Mac=MD5 
      0x01,0x00,0x80 - RC4-MD5                 SSLv2 Kx=RSA      Au=RSA  Enc=RC4(128)  Mac=MD5 
+          0x00,0x92 - RSA-PSK-RC4-SHA         SSLv3 Kx=RSAPSK   Au=RSA  Enc=RC4(128)  Mac=SHA1
           0x00,0x8A - PSK-RC4-SHA             SSLv3 Kx=PSK      Au=PSK  Enc=RC4(128)  Mac=SHA1
           0xC0,0x12 - ECDHE-RSA-DES-CBC3-SHA  SSLv3 Kx=ECDH     Au=RSA  Enc=3DES(168) Mac=SHA1
           0xC0,0x08 - ECDHE-ECDSA-DES-CBC3-SHA SSLv3 Kx=ECDH     Au=ECDSA Enc=3DES(168) Mac=SHA1
@@ -176,6 +182,7 @@ At the moment 177
           0xC0,0x03 - ECDH-ECDSA-DES-CBC3-SHA SSLv3 Kx=ECDH/ECDSA Au=ECDH Enc=3DES(168) Mac=SHA1
           0x00,0x0A - DES-CBC3-SHA            SSLv3 Kx=RSA      Au=RSA  Enc=3DES(168) Mac=SHA1
      0x07,0x00,0xC0 - DES-CBC3-MD5            SSLv2 Kx=RSA      Au=RSA  Enc=3DES(168) Mac=MD5 
+          0x00,0x93 - RSA-PSK-3DES-EDE-CBC-SHA SSLv3 Kx=RSAPSK   Au=RSA  Enc=3DES(168) Mac=SHA1
           0x00,0x8B - PSK-3DES-EDE-CBC-SHA    SSLv3 Kx=PSK      Au=PSK  Enc=3DES(168) Mac=SHA1
      0x08,0x00,0x80 - RC4-64-MD5              SSLv2 Kx=RSA      Au=RSA  Enc=RC4(64)   Mac=MD5 
           0x00,0x63 - EXP1024-DHE-DSS-DES-CBC-SHA SSLv3 Kx=DH(1024) Au=DSS  Enc=DES(56)   Mac=SHA1 export
@@ -202,8 +209,8 @@ At the moment 177
      0x02,0x00,0x80 - EXP-RC4-MD5             SSLv2 Kx=RSA(512) Au=RSA  Enc=RC4(40)   Mac=MD5  export
           0xC0,0x10 - ECDHE-RSA-NULL-SHA      SSLv3 Kx=ECDH     Au=RSA  Enc=None      Mac=SHA1
           0xC0,0x06 - ECDHE-ECDSA-NULL-SHA    SSLv3 Kx=ECDH     Au=ECDSA Enc=None      Mac=SHA1
-          0x00,0x83 - GOST2001-NULL-GOST94    SSLv3 Kx=VKO      Au=GOST01 Enc=None      Mac=GOST94
-          0x00,0x82 - GOST94-NULL-GOST94      SSLv3 Kx=VKO      Au=GOST94 Enc=None      Mac=GOST94
+          0x00,0x83 - GOST2001-NULL-GOST94    SSLv3 Kx=GOST     Au=GOST01 Enc=None      Mac=GOST94
+          0x00,0x82 - GOST94-NULL-GOST94      SSLv3 Kx=GOST     Au=GOST94 Enc=None      Mac=GOST94
           0xC0,0x15 - AECDH-NULL-SHA          SSLv3 Kx=ECDH     Au=None Enc=None      Mac=SHA1
           0xC0,0x0B - ECDH-RSA-NULL-SHA       SSLv3 Kx=ECDH/RSA Au=ECDH Enc=None      Mac=SHA1
           0xC0,0x01 - ECDH-ECDSA-NULL-SHA     SSLv3 Kx=ECDH/ECDSA Au=ECDH Enc=None      Mac=SHA1
