@@ -354,8 +354,8 @@ static void sc_usage(void)
 	BIO_printf(bio_err," -starttls prot - use the STARTTLS command before starting TLS\n");
 	BIO_printf(bio_err,"                 for those protocols that support it, where\n");
 	BIO_printf(bio_err,"                 'prot' defines which one to assume.  Currently,\n");
-	BIO_printf(bio_err,"                 only \"smtp\", \"pop3\", \"imap\", \"ftp\", \"xmpp\", and\n");
-	BIO_printf(bio_err,"                 \"telnet\" are supported.\n");
+	BIO_printf(bio_err,"                 only \"smtp\", \"pop3\", \"imap\", \"ftp\", \"xmpp\",\n");
+	BIO_printf(bio_err,"                 \"telnet\" and \"ldap\" are supported.\n");
 #ifndef OPENSSL_NO_ENGINE
 	BIO_printf(bio_err," -engine id    - Initialise and use the specified engine\n");
 #endif
@@ -580,7 +580,8 @@ enum
 	PROTO_IMAP,
 	PROTO_FTP,
 	PROTO_XMPP,
-	PROTO_TELNET
+	PROTO_TELNET,
+	PROTO_LDAP
 };
 
 int MAIN(int, char **);
@@ -1059,6 +1060,8 @@ static char *jpake_secret = NULL;
 				starttls_proto = PROTO_XMPP;
 			else if (strcmp(*argv, "telnet") == 0)
 				starttls_proto = PROTO_TELNET;
+			else if (strcmp(*argv, "ldap") == 0)
+				starttls_proto = PROTO_LDAP;
 			else
 				goto bad;
 			}
@@ -1774,6 +1777,30 @@ SSL_set_tlsext_status_ids(con, ids);
             if (!foundit)
               BIO_printf(bio_err, "HTTP CONNECT failed\n");
           }
+	if (starttls_proto == PROTO_LDAP)
+		{
+		char *ldap_tls_genconf= "asn1=SEQUENCE:LDAPMessage\n"
+					"[LDAPMessage]\n"
+					"messageID=INTEGER:1\n"
+					"extendedReq=EXPLICIT:23A,IMPLICIT:0C,FORMAT:ASCII,OCT:1.3.6.1.4.1.1466.20037\n";
+		long errline;
+		char *genstr;
+		ASN1_TYPE *atyp = NULL;
+		CONF *cnf = NCONF_new(NULL);
+		BIO *ldapbio = BIO_new(BIO_s_mem());
+
+		BIO_puts(ldapbio, ldap_tls_genconf);
+		NCONF_load_bio(cnf, ldapbio, &errline);
+		genstr = NCONF_get_string(cnf, "default", "asn1");
+		atyp = ASN1_generate_nconf(genstr, cnf);
+
+		BIO_printf(sbio, (const char *) atyp->value.sequence->data, host);
+		BIO_read(sbio,sbuf,BUFSIZZ);
+
+		BIO_free(ldapbio);
+		NCONF_free(cnf);
+		ASN1_TYPE_free(atyp);
+		}
 
 	for (;;)
 		{
