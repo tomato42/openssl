@@ -1,6 +1,8 @@
 OpenSSL
 ================
 
+Build status for target linux-x86_64: [![Build Status](https://travis-ci.org/PeterMosmans/openssl.svg?branch=1.0.2-chacha)](https://travis-ci.org/PeterMosmans/openssl)
+
 This is a fork of the official OpenSSL github repository at https://github.com/openssl/openssl.git
 
 You're looking at the 1.0.2-chacha branch, which aligns with the OpenSSL_1_0_2-stable branch (which currently is at beta4 stage).
@@ -17,6 +19,7 @@ The main reason of the fork is to include ChaCha20, Poly1305, other (experimenta
   * -proxy (RT #2651)
   * -starttls telnet (RT #2451)
   * -starttls xmpp improvement
+  * [-starttls ldap support (RT #2665)](https://github.com/PeterMosmans/openssl/commit/f7e338776d998cb2f2d9ff133473cc87b337821a)
 * Minor changes to Makefiles to simplify building using the mingw / mingw64 platform on Windows
 
 #### Thanks to
@@ -33,7 +36,7 @@ Please see the official OpenSSL repository for all relevant license / copyright 
 
 
 #### Supported ciphers
-At the moment 181
+Currently 181
 ```
 openssl ciphers -l -V "ALL:COMPLEMENTOFALL"
 
