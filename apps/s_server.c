@@ -537,7 +537,9 @@ static void sv_usage(void)
 	BIO_printf(bio_err," -srpuserseed string - A seed string for a default user salt.\n");
 #endif
 	BIO_printf(bio_err," -ssl2         - Just talk SSLv2\n");
+#ifndef OPENSSL_NO_SSL3_METHOD
 	BIO_printf(bio_err," -ssl3         - Just talk SSLv3\n");
+#endif
 	BIO_printf(bio_err," -tls1_2       - Just talk TLSv1.2\n");
 	BIO_printf(bio_err," -tls1_1       - Just talk TLSv1.1\n");
 	BIO_printf(bio_err," -tls1         - Just talk TLSv1\n");
@@ -1398,9 +1400,12 @@ int MAIN(int argc, char *argv[])
 			{ www=3; }
 #ifndef OPENSSL_NO_SSL2
 		else if	(strcmp(*argv,"-ssl2") == 0)
-			{ meth=SSLv2_server_method(); }
+			{
+			no_ecdhe=1;
+			meth=SSLv2_server_method();
+			}
 #endif
-#ifndef OPENSSL_NO_SSL3
+#ifndef OPENSSL_NO_SSL3_METHOD
 		else if	(strcmp(*argv,"-ssl3") == 0)
 			{ meth=SSLv3_server_method(); }
 #endif

@@ -2236,9 +2236,11 @@ const SSL_METHOD *SSLv2_server_method(void);	/* SSLv2 */
 const SSL_METHOD *SSLv2_client_method(void);	/* SSLv2 */
 #endif
 
+#ifndef OPENSSL_NO_SSL3_METHOD
 const SSL_METHOD *SSLv3_method(void);		/* SSLv3 */
 const SSL_METHOD *SSLv3_server_method(void);	/* SSLv3 */
 const SSL_METHOD *SSLv3_client_method(void);	/* SSLv3 */
+#endif
 
 const SSL_METHOD *SSLv23_method(void);	/* SSLv3 but can rollback to v2 */
 const SSL_METHOD *SSLv23_server_method(void);	/* SSLv3 but can rollback to v2 */
@@ -2600,7 +2602,6 @@ void ERR_load_SSL_strings(void);
 #define SSL_F_SSL_CERT_INST				 222
 #define SSL_F_SSL_CERT_INSTANTIATE			 214
 #define SSL_F_SSL_CERT_NEW				 162
-#define SSL_F_SSL_CHECK_CLIENTHELLO_TLSEXT_LATE		 335
 #define SSL_F_SSL_CHECK_PRIVATE_KEY			 163
 #define SSL_F_SSL_CHECK_SERVERHELLO_TLSEXT		 280
 #define SSL_F_SSL_CHECK_SRVR_ECC_CERT_AND_ALG		 279
@@ -2703,6 +2704,7 @@ void ERR_load_SSL_strings(void);
 #define SSL_F_TLS1_PREPARE_SERVERHELLO_TLSEXT		 276
 #define SSL_F_TLS1_PRF					 284
 #define SSL_F_TLS1_SETUP_KEY_BLOCK			 211
+#define SSL_F_TLS1_SET_SERVER_SIGALGS			 335
 #define SSL_F_WRITE_PENDING				 212
 
 /* Reason codes. */

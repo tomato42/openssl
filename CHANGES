@@ -2,10 +2,10 @@
  OpenSSL CHANGES
  _______________
 
+ Changes between 1.0.1k and 1.0.2 [xx XXX xxxx]
+ 
   *) Support for TLS-RSA-PSK ciphersuites has been added.
      [Giuseppe D'Angelo, Christian J. Dietrich]
-
- Changes between 1.0.1j and 1.0.2 [xx XXX xxxx]
 
   *) SRTP Memory Leak.
 
@@ -45,13 +45,6 @@
      SSL_set_mode(s, SSL_MODE_SEND_FALLBACK_SCSV).
      (CVE-2014-3566)
      [Adam Langley, Bodo Moeller]
-
-   *) Tighten client-side session ticket handling during renegotiation:
-      ensure that the client only accepts a session ticket if the server sends
-      the extension anew in the ServerHello. Previously, a TLS client would
-      reuse the old extension state and thus accept a session ticket if one was
-      announced in the initial ServerHello.
-      [Emilia Käsper]
 
   *) Accelerated NIST P-256 elliptic curve implementation for x86_64
      (other platforms pending).
@@ -375,11 +368,26 @@
 
  Changes between 1.0.1j and 1.0.1k [xx XXX xxxx]
 
+   *) Do not resume sessions on the server if the negotiated protocol
+      version does not match the session's version. Resuming with a different
+      version, while not strictly forbidden by the RFC, is of questionable
+      sanity and breaks all known clients.
+      [David Benjamin, Emilia Käsper]
+
+   *) Tighten handling of the ChangeCipherSpec (CCS) message: reject
+      early CCS messages during renegotiation. (Note that because
+      renegotiation is encrypted, this early CCS was not exploitable.)
+      [Emilia Käsper]
+
    *) Tighten client-side session ticket handling during renegotiation:
       ensure that the client only accepts a session ticket if the server sends
       the extension anew in the ServerHello. Previously, a TLS client would
       reuse the old extension state and thus accept a session ticket if one was
       announced in the initial ServerHello.
+
+      Similarly, ensure that the client requires a session ticket if one
+      was advertised in the ServerHello. Previously, a TLS client would
+      ignore a missing NewSessionTicket message.
       [Emilia Käsper]
 
  Changes between 1.0.1i and 1.0.1j [15 Oct 2014]

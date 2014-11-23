@@ -267,6 +267,9 @@ int dtls1_connect(SSL *s)
 			memset(s->s3->client_random,0,sizeof(s->s3->client_random));
 			s->d1->send_cookie = 0;
 			s->hit = 0;
+			s->d1->change_cipher_spec_ok = 0;
+			/* Should have been reset by ssl3_get_finished, too. */
+			s->s3->change_cipher_spec = 0;
 			break;
 
 #ifndef OPENSSL_NO_SCTP
@@ -388,20 +391,6 @@ int dtls1_connect(SSL *s)
 
 		case SSL3_ST_CR_CERT_A:
 		case SSL3_ST_CR_CERT_B:
-#ifndef OPENSSL_NO_TLSEXT
-			ret=ssl3_check_finished(s);
-			if (ret <= 0) goto end;
-			if (ret == 2)
-				{
-				s->hit = 1;
-				if (s->tlsext_ticket_expected)
-					s->state=SSL3_ST_CR_SESSION_TICKET_A;
-				else
-					s->state=SSL3_ST_CR_FINISHED_A;
-				s->init_num=0;
-				break;
-				}
-#endif
 			/* Check if it is anon DH or PSK */
 			if (!(s->s3->tmp.new_cipher->algorithm_auth & SSL_aNULL) &&
 			    !(s->s3->tmp.new_cipher->algorithm_mkey & SSL_kPSK))
@@ -524,7 +513,6 @@ int dtls1_connect(SSL *s)
 				else
 #endif
 					s->state=SSL3_ST_CW_CHANGE_A;
-				s->s3->change_cipher_spec=0;
 				}
 
 			s->init_num=0;
@@ -545,7 +533,6 @@ int dtls1_connect(SSL *s)
 #endif
 				s->state=SSL3_ST_CW_CHANGE_A;
 			s->init_num=0;
-			s->s3->change_cipher_spec=0;
 			break;
 
 		case SSL3_ST_CW_CHANGE_A:
@@ -850,4 +837,3 @@ f_err:
 	ssl3_send_alert(s, SSL3_AL_FATAL, al);
 	return -1;
 	}
-

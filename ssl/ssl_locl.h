@@ -1250,7 +1250,6 @@ int ssl3_get_key_exchange(SSL *s);
 int ssl3_get_server_certificate(SSL *s);
 int ssl3_check_cert_and_algorithm(SSL *s);
 #ifndef OPENSSL_NO_TLSEXT
-int ssl3_check_finished(SSL *s);
 # ifndef OPENSSL_NO_NEXTPROTONEG
 int ssl3_send_next_proto(SSL *s);
 # endif
@@ -1344,6 +1343,7 @@ int tls1_shared_list(SSL *s,
 unsigned char *ssl_add_clienthello_tlsext(SSL *s, unsigned char *buf, unsigned char *limit, int *al);
 unsigned char *ssl_add_serverhello_tlsext(SSL *s, unsigned char *buf, unsigned char *limit, int *al);
 int ssl_parse_clienthello_tlsext(SSL *s, unsigned char **data, unsigned char *d, int n);
+int tls1_set_server_sigalgs(SSL *s);
 int ssl_check_clienthello_tlsext_late(SSL *s);
 int ssl_parse_serverhello_tlsext(SSL *s, unsigned char **data, unsigned char *d, int n);
 int ssl_prepare_clienthello_tlsext(SSL *s);
