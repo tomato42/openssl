@@ -45,7 +45,7 @@ operations are intended to meet the standard notions of privacy and
 authenticity for authenticated encryption. For formal definitions see I<Bellare
 and Namprempre>, "Authenticated encryption: relations among notions and
 analysis of the generic composition paradigm," Lecture Notes in Computer
-Science B<1976> (2000), 531–545,
+Science B<1976> (2000), 531-545,
 L<http://www-cse.ucsd.edu/~mihir/papers/oem.html>.
 
 When sealing messages, a nonce must be given. The length of the nonce is fixed
