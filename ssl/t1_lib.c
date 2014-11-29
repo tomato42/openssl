@@ -1227,6 +1227,10 @@ unsigned char *ssl_add_clienthello_tlsext(SSL *s, unsigned char *buf, unsigned c
 
 	if (ret>=limit) return NULL; /* this really never occurs, but ... */
 
+	/* skip all options if asked for it */
+	if (s->options & SSL_OP_NO_TLSEXT)
+		goto done;
+
  	if (s->tlsext_hostname != NULL)
 		{ 
 		/* Add TLS extension servername to the Client Hello message */
@@ -1564,6 +1568,8 @@ unsigned char *ssl_add_clienthello_tlsext(SSL *s, unsigned char *buf, unsigned c
 			ret += hlen;
 			}
 		}
+
+	done:
 
 	if ((extdatalen = ret-orig-2)== 0) 
 		return orig;
