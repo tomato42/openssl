@@ -1097,7 +1097,7 @@ int ssl_fill_hello_random(SSL *s, int server, unsigned char *field, int len);
 
 int ssl2_enc_init(SSL *s, int client);
 int ssl2_generate_key_material(SSL *s);
-void ssl2_enc(SSL *s,int send_data);
+int ssl2_enc(SSL *s,int send_data);
 void ssl2_mac(SSL *s,unsigned char *mac,int send_data);
 const SSL_CIPHER *ssl2_get_cipher_by_char(const unsigned char *p);
 int ssl2_put_cipher_by_char(const SSL_CIPHER *c,unsigned char *p);
@@ -1233,7 +1233,9 @@ void dtls1_stop_timer(SSL *s);
 int dtls1_is_timer_expired(SSL *s);
 void dtls1_double_timeout(SSL *s);
 int dtls1_send_newsession_ticket(SSL *s);
-unsigned int dtls1_min_mtu(void);
+unsigned int dtls1_min_mtu(SSL *s);
+unsigned int dtls1_link_min_mtu(void);
+void dtls1_hm_fragment_free(hm_fragment *frag);
 
 /* some client-only functions */
 int ssl3_client_hello(SSL *s);
@@ -1296,7 +1298,6 @@ int dtls1_get_record(SSL *s);
 int do_dtls1_write(SSL *s, int type, const unsigned char *buf,
 	unsigned int len, int create_empty_fragement);
 int dtls1_dispatch_alert(SSL *s);
-int dtls1_enc(SSL *s, int snd);
 
 int ssl_init_wbio_buffer(SSL *s, int push);
 void ssl_free_wbio_buffer(SSL *s);

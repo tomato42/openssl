@@ -473,9 +473,9 @@ static void sv_usage(void)
 	BIO_printf(bio_err,"usage: s_server [args ...]\n");
 	BIO_printf(bio_err,"\n");
 	BIO_printf(bio_err," -accept arg   - port to accept on (default is %d)\n",PORT);
-	BIO_printf(bio_err," -checkhost host - check peer certificate matches \"host\"\n");
-	BIO_printf(bio_err," -checkemail email - check peer certificate matches \"email\"\n");
-	BIO_printf(bio_err," -checkip ipaddr - check peer certificate matches \"ipaddr\"\n");
+	BIO_printf(bio_err," -verify_host host - check peer certificate matches \"host\"\n");
+	BIO_printf(bio_err," -verify_email email - check peer certificate matches \"email\"\n");
+	BIO_printf(bio_err," -verify_ip ipaddr - check peer certificate matches \"ipaddr\"\n");
 	BIO_printf(bio_err," -context arg  - set session ID context\n");
 	BIO_printf(bio_err," -verify arg   - turn on peer certificate verification\n");
 	BIO_printf(bio_err," -Verify arg   - turn on peer certificate verification, must have a cert.\n");
@@ -2253,10 +2253,24 @@ static int sv_body(char *hostname, int s, int stype, unsigned char *context)
 			BIO_ctrl(sbio, BIO_CTRL_DGRAM_SET_SEND_TIMEOUT, 0, &timeout);
 			}
 
-		if (socket_mtu > 28)
+		if (socket_mtu)
 			{
+			if(socket_mtu < DTLS_get_link_min_mtu(con))
+				{
+				BIO_printf(bio_err,"MTU too small. Must be at least %ld\n",
+					DTLS_get_link_min_mtu(con));
+				ret = -1;
+				BIO_free(sbio);
+				goto err;
+				}
 			SSL_set_options(con, SSL_OP_NO_QUERY_MTU);
-			SSL_set_mtu(con, socket_mtu - 28);
+			if(!DTLS_set_link_mtu(con, socket_mtu))
+				{
+				BIO_printf(bio_err, "Failed to set MTU\n");
+				ret = -1;
+				BIO_free(sbio);
+				goto err;
+				}
 			}
 		else
 			/* want to do MTU discovery */
