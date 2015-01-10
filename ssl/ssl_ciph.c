@@ -882,7 +882,7 @@ static void ssl_cipher_collect_ciphers(const SSL_METHOD *ssl_method,
 			co_list[co_list_num].active = 0;
 			co_list_num++;
 #ifdef KSSL_DEBUG
-			printf("\t%d: %s %lx %lx %lx\n",i,c->name,c->id,c->algorithm_mkey,c->algorithm_auth);
+			fprintf(stderr,"\t%d: %s %lx %lx %lx\n",i,c->name,c->id,c->algorithm_mkey,c->algorithm_auth);
 #endif	/* KSSL_DEBUG */
 			/*
 			if (!sk_push(ca_list,(char *)c)) goto err;
@@ -999,7 +999,7 @@ static void ssl_cipher_apply_rule(unsigned long cipher_id,
 	int reverse = 0;
 
 #ifdef CIPHER_DEBUG
-	printf("Applying rule %d with %08lx/%08lx/%08lx/%08lx/%08lx %08lx (%d)\n",
+	fprintf(stderr, "Applying rule %d with %08lx/%08lx/%08lx/%08lx/%08lx %08lx (%d)\n",
 		rule, alg_mkey, alg_auth, alg_enc, alg_mac, alg_ssl, algo_strength, strength_bits);
 #endif
 
@@ -1045,7 +1045,7 @@ static void ssl_cipher_apply_rule(unsigned long cipher_id,
 		else
 			{
 #ifdef CIPHER_DEBUG
-			printf("\nName: %s:\nAlgo = %08lx/%08lx/%08lx/%08lx/%08lx Algo_strength = %08lx\n", cp->name, cp->algorithm_mkey, cp->algorithm_auth, cp->algorithm_enc, cp->algorithm_mac, cp->algorithm_ssl, cp->algo_strength);
+			fprintf(stderr, "\nName: %s:\nAlgo = %08lx/%08lx/%08lx/%08lx/%08lx Algo_strength = %08lx\n", cp->name, cp->algorithm_mkey, cp->algorithm_auth, cp->algorithm_enc, cp->algorithm_mac, cp->algorithm_ssl, cp->algo_strength);
 #endif
 #ifdef OPENSSL_SSL_DEBUG_BROKEN_PROTOCOL
 			if (cipher_id && cipher_id != cp->id)
@@ -1068,7 +1068,7 @@ static void ssl_cipher_apply_rule(unsigned long cipher_id,
 			}
 
 #ifdef CIPHER_DEBUG
-		printf("Action = %d\n", rule);
+		fprintf(stderr, "Action = %d\n", rule);
 #endif
 
 		/* add the cipher if it has not been added yet. */
@@ -1465,6 +1465,7 @@ static int check_suiteb_cipher_list(const SSL_METHOD *meth, CERT *c,
 		return 0;
 		}
 
+#ifndef OPENSSL_NO_ECDH
 	switch(suiteb_flags)
 		{
 	case SSL_CERT_FLAG_SUITEB_128_LOS:
@@ -1483,6 +1484,10 @@ static int check_suiteb_cipher_list(const SSL_METHOD *meth, CERT *c,
 	/* Set auto ECDH parameter determination */
 	c->ecdh_tmp_auto = 1;
 	return 1;
+#else
+	SSLerr(SSL_F_CHECK_SUITEB_CIPHER_LIST, SSL_R_ECDH_REQUIRED_FOR_SUITEB_MODE);
+	return 0;
+#endif
 	}
 #endif
 
@@ -1522,7 +1527,7 @@ STACK_OF(SSL_CIPHER) *ssl_create_cipher_list(const SSL_METHOD *ssl_method,
 	 */
 	num_of_ciphers = ssl_method->num_ciphers();
 #ifdef KSSL_DEBUG
-	printf("ssl_create_cipher_list() for %d ciphers\n", num_of_ciphers);
+	fprintf(stderr,"ssl_create_cipher_list() for %d ciphers\n", num_of_ciphers);
 #endif    /* KSSL_DEBUG */
 	co_list = (CIPHER_ORDER *)OPENSSL_malloc(sizeof(CIPHER_ORDER) * num_of_ciphers);
 	if (co_list == NULL)
@@ -1654,7 +1659,7 @@ STACK_OF(SSL_CIPHER) *ssl_create_cipher_list(const SSL_METHOD *ssl_method,
 			{
 			sk_SSL_CIPHER_push(cipherstack, curr->cipher);
 #ifdef CIPHER_DEBUG
-			printf("<%s>\n",curr->cipher->name);
+			fprintf(stderr, "<%s>\n",curr->cipher->name);
 #endif
 			}
 		}

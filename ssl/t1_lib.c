@@ -887,6 +887,7 @@ static int tls1_check_cert_param(SSL *s, X509 *x, int set_ee_md)
 		}
 	return rv;
 	}
+#ifndef OPENSSL_NO_ECDH
 /* Check EC temporary key is compatible with client extensions */
 int tls1_check_ec_tmp_key(SSL *s, unsigned long cid)
 	{
@@ -953,6 +954,7 @@ int tls1_check_ec_tmp_key(SSL *s, unsigned long cid)
 	return tls1_check_ec_key(s, curve_id, NULL);
 #endif
 	}
+#endif /* OPENSSL_NO_ECDH */
 
 #else
 
@@ -1550,6 +1552,7 @@ unsigned char *ssl_add_clienthello_tlsext(SSL *s, unsigned char *buf, unsigned c
 		ret += s->alpn_client_proto_list_len;
 		}
 
+#ifndef OPENSSL_NO_SRTP
         if(SSL_IS_DTLS(s) && SSL_get_srtp_profiles(s))
                 {
                 int el;
@@ -1568,6 +1571,7 @@ unsigned char *ssl_add_clienthello_tlsext(SSL *s, unsigned char *buf, unsigned c
 			}
                 ret += el;
                 }
+#endif
 	custom_ext_init(&s->cert->cli_ext);
 	/* Add custom TLS Extensions to ClientHello */
 	if (!custom_ext_add(s, 0, &ret, limit, al))
@@ -1724,6 +1728,7 @@ unsigned char *ssl_add_serverhello_tlsext(SSL *s, unsigned char *buf, unsigned c
 		}
 #endif
 
+#ifndef OPENSSL_NO_SRTP
         if(SSL_IS_DTLS(s) && s->srtp_profile)
                 {
                 int el;
@@ -1742,6 +1747,7 @@ unsigned char *ssl_add_serverhello_tlsext(SSL *s, unsigned char *buf, unsigned c
 			}
                 ret+=el;
                 }
+#endif
 
 	if (((s->s3->tmp.new_cipher->id & 0xFFFF)==0x80 || (s->s3->tmp.new_cipher->id & 0xFFFF)==0x81) 
 		&& (SSL_get_options(s) & SSL_OP_CRYPTOPRO_TLSEXT_BUG))
@@ -2013,6 +2019,16 @@ static int ssl_scan_clienthello_tlsext(SSL *s, unsigned char **p, unsigned char 
 		OPENSSL_free(s->cert->peer_sigalgs);
 		s->cert->peer_sigalgs = NULL;
 		}
+
+#ifndef OPENSSL_NO_SRP
+	if (s->srp_ctx.login != NULL)
+		{
+		OPENSSL_free(s->srp_ctx.login);
+		s->srp_ctx.login = NULL;
+		}
+#endif
+
+	s->srtp_profile = NULL;
 
 	if (data >= (d+n-2))
 		goto ri_check;
@@ -2472,6 +2488,7 @@ static int ssl_scan_clienthello_tlsext(SSL *s, unsigned char **p, unsigned char 
 			}
 
 		/* session ticket processed earlier */
+#ifndef OPENSSL_NO_SRTP
 		else if (SSL_IS_DTLS(s) && SSL_get_srtp_profiles(s)
 				&& type == TLSEXT_TYPE_use_srtp)
                         {
@@ -2479,6 +2496,7 @@ static int ssl_scan_clienthello_tlsext(SSL *s, unsigned char **p, unsigned char 
 							      al))
 				return 0;
                         }
+#endif
 
 		data+=size;
 		}
@@ -2842,12 +2860,14 @@ static int ssl_scan_serverhello_tlsext(SSL *s, unsigned char **p, unsigned char 
 				}
 			}
 #endif
+#ifndef OPENSSL_NO_SRTP
 		else if (SSL_IS_DTLS(s) && type == TLSEXT_TYPE_use_srtp)
                         {
                         if(ssl_parse_serverhello_use_srtp_ext(s, data, size,
 							      al))
                                 return 0;
                         }
+#endif
 		/* If this extension type was not otherwise handled, but 
 		 * matches a custom_cli_ext_record, then send it to the c
 		 * callback */

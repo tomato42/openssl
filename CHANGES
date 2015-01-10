@@ -46,6 +46,14 @@
      (CVE-2014-3566)
      [Adam Langley, Bodo Moeller]
 
+  *) Facilitate "universal" ARM builds targeting range of ARM ISAs, e.g.
+     ARMv5 through ARMv8, as opposite to "locking" it to single one.
+     So far those who have to target multiple plaforms would compromise
+     and argue that binary targeting say ARMv5 would still execute on
+     ARMv8. "Universal" build resolves this compromise by providing
+     near-optimal performance even on newer platforms.
+     [Andy Polyakov]
+
   *) Accelerated NIST P-256 elliptic curve implementation for x86_64
      (other platforms pending).
      [Shay Gueron & Vlad Krasnov (Intel Corp), Andy Polyakov]
@@ -367,6 +375,67 @@
      X509_CINF_get_signature were reverted post internal team review.
 
  Changes between 1.0.1j and 1.0.1k [xx XXX xxxx]
+
+  *) Abort handshake if server key exchange message is omitted for ephemeral
+     ECDH ciphersuites.
+
+     Thanks to Karthikeyan Bhargavan of the PROSECCO team at INRIA for
+     reporting this issue.
+     (CVE-2014-3572)
+     [Steve Henson]
+
+  *) Remove non-export ephemeral RSA code on client and server. This code
+     violated the TLS standard by allowing the use of temporary RSA keys in
+     non-export ciphersuites and could be used by a server to effectively
+     downgrade the RSA key length used to a value smaller than the server
+     certificate. Thanks for Karthikeyan Bhargavan of the PROSECCO team at
+     INRIA or reporting this issue.
+     (CVE-2015-0204)
+     [Steve Henson]
+
+  *) Ensure that the session ID context of an SSL is updated when its
+     SSL_CTX is updated via SSL_set_SSL_CTX.
+
+     The session ID context is typically set from the parent SSL_CTX,
+     and can vary with the CTX.
+     [Adam Langley]
+
+  *) Fix various certificate fingerprint issues.
+
+     By using non-DER or invalid encodings outside the signed portion of a
+     certificate the fingerprint can be changed without breaking the signature.
+     Although no details of the signed portion of the certificate can be changed
+     this can cause problems with some applications: e.g. those using the
+     certificate fingerprint for blacklists.
+
+     1. Reject signatures with non zero unused bits.
+
+     If the BIT STRING containing the signature has non zero unused bits reject
+     the signature. All current signature algorithms require zero unused bits.
+
+     2. Check certificate algorithm consistency.
+
+     Check the AlgorithmIdentifier inside TBS matches the one in the
+     certificate signature. NB: this will result in signature failure
+     errors for some broken certificates.
+
+     Thanks to Konrad Kraszewski from Google for reporting this issue.
+
+     3. Check DSA/ECDSA signatures use DER.
+
+     Reencode DSA/ECDSA signatures and compare with the original received
+     signature. Return an error if there is a mismatch.
+
+     This will reject various cases including garbage after signature
+     (thanks to Antti Karjalainen and Tuomo Untinen from the Codenomicon CROSS
+     program for discovering this case) and use of BER or invalid ASN.1 INTEGERs
+     (negative or with leading zeroes).
+
+     Further analysis was conducted and fixes were developed by Stephen Henson
+     of the OpenSSL core team.
+
+     (CVE-2014-8275)
+     [Steve Henson]
 
    *) Do not resume sessions on the server if the negotiated protocol
       version does not match the session's version. Resuming with a different

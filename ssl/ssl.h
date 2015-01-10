@@ -627,9 +627,8 @@ struct ssl_session_st
 #define SSL_OP_SINGLE_ECDH_USE				0x00080000L
 /* If set, always create a new key when using tmp_dh parameters */
 #define SSL_OP_SINGLE_DH_USE				0x00100000L
-/* Set to always use the tmp_rsa key when doing RSA operations,
- * even when this violates protocol specs */
-#define SSL_OP_EPHEMERAL_RSA				0x00200000L
+/* Does nothing: retained for compatibiity */
+#define SSL_OP_EPHEMERAL_RSA				0x0
 /* Set on servers to choose the cipher according to the server's
  * preferences */
 #define SSL_OP_CIPHER_SERVER_PREFERENCE			0x00400000L
@@ -2795,6 +2794,7 @@ void ERR_load_SSL_strings(void);
 #define SSL_R_ECC_CERT_NOT_FOR_SIGNING			 318
 #define SSL_R_ECC_CERT_SHOULD_HAVE_RSA_SIGNATURE	 322
 #define SSL_R_ECC_CERT_SHOULD_HAVE_SHA1_SIGNATURE	 323
+#define SSL_R_ECDH_REQUIRED_FOR_SUITEB_MODE		 374
 #define SSL_R_ECGROUP_TOO_LARGE_FOR_CIPHER		 310
 #define SSL_R_EMPTY_SRTP_PROTECTION_PROFILE_LIST	 354
 #define SSL_R_ENCRYPTED_LENGTH_TOO_LONG			 150

@@ -641,8 +641,10 @@ void SSL_free(SSL *s)
 		OPENSSL_free(s->next_proto_negotiated);
 #endif
 
+#ifndef OPENSSL_NO_SRTP
         if (s->srtp_profiles)
             sk_SRTP_PROTECTION_PROFILE_free(s->srtp_profiles);
+#endif
 
 	OPENSSL_free(s);
 	}
@@ -2139,8 +2141,10 @@ void SSL_CTX_free(SSL_CTX *a)
 	a->comp_methods = NULL;
 #endif
 
+#ifndef OPENSSL_NO_SRTP
         if (a->srtp_profiles)
                 sk_SRTP_PROTECTION_PROFILE_free(a->srtp_profiles);
+#endif
 
 #ifndef OPENSSL_NO_PSK
 	if (a->psk_identity_hint)
@@ -2277,7 +2281,7 @@ void ssl_set_cert_masks(CERT *c, const SSL_CIPHER *cipher)
 	
 
 #ifdef CIPHER_DEBUG
-	printf("rt=%d rte=%d dht=%d ecdht=%d re=%d ree=%d rs=%d ds=%d dhr=%d dhd=%d\n",
+	fprintf(stderr,"rt=%d rte=%d dht=%d ecdht=%d re=%d ree=%d rs=%d ds=%d dhr=%d dhd=%d\n",
 	        rsa_tmp,rsa_tmp_export,dh_tmp,have_ecdh_tmp,
 		rsa_enc,rsa_enc_export,rsa_sign,dsa_sign,dh_rsa,dh_dsa);
 #endif
@@ -2355,8 +2359,10 @@ void ssl_set_cert_masks(CERT *c, const SSL_CIPHER *cipher)
 		x = cpk->x509;
 		/* This call populates extension flags (ex_flags) */
 		X509_check_purpose(x, -1, 0);
+#ifndef OPENSSL_NO_ECDH
 		ecdh_ok = (x->ex_flags & EXFLAG_KUSAGE) ?
 		    (x->ex_kusage & X509v3_KU_KEY_AGREEMENT) : 1;
+#endif
 		ecdsa_ok = (x->ex_flags & EXFLAG_KUSAGE) ?
 		    (x->ex_kusage & X509v3_KU_DIGITAL_SIGNATURE) : 1;
 		if (!(cpk->valid_flags & CERT_PKEY_SIGN))
@@ -3206,10 +3212,32 @@ SSL_CTX *SSL_set_SSL_CTX(SSL *ssl, SSL_CTX* ctx)
 			}
 		ssl_cert_free(ocert);
 		}
+
+	/*
+	 * Program invariant: |sid_ctx| has fixed size (SSL_MAX_SID_CTX_LENGTH),
+	 * so setter APIs must prevent invalid lengths from entering the system.
+	 */
+	OPENSSL_assert(ssl->sid_ctx_length <= sizeof(ssl->sid_ctx));
+
+	/*
+	 * If the session ID context matches that of the parent SSL_CTX,
+	 * inherit it from the new SSL_CTX as well. If however the context does
+	 * not match (i.e., it was set per-ssl with SSL_set_session_id_context),
+	 * leave it unchanged.
+	 */
+	if ((ssl->ctx != NULL) &&
+		(ssl->sid_ctx_length == ssl->ctx->sid_ctx_length) &&
+		(memcmp(ssl->sid_ctx, ssl->ctx->sid_ctx, ssl->sid_ctx_length) == 0))
+		{
+		ssl->sid_ctx_length = ctx->sid_ctx_length;
+		memcpy(&ssl->sid_ctx, &ctx->sid_ctx, sizeof(ssl->sid_ctx));
+		}
+
 	CRYPTO_add(&ctx->references,1,CRYPTO_LOCK_SSL_CTX);
 	if (ssl->ctx != NULL)
 		SSL_CTX_free(ssl->ctx); /* decrement reference count */
 	ssl->ctx = ctx;
+
 	return(ssl->ctx);
 	}
 

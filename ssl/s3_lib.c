@@ -3927,9 +3927,11 @@ long ssl3_ctrl(SSL *s, int cmd, long larg, void *parg)
 	case SSL_CTRL_GET_SHARED_CURVE:
 		return tls1_shared_curve(s, larg);
 
+#ifndef OPENSSL_NO_ECDH
 	case SSL_CTRL_SET_ECDH_AUTO:
 		s->cert->ecdh_tmp_auto = larg;
 		return 1;
+#endif
 #endif
 	case SSL_CTRL_SET_SIGALGS:
 		return tls1_set_sigalgs(s->cert, parg, larg, 0);
@@ -4001,7 +4003,7 @@ long ssl3_ctrl(SSL *s, int cmd, long larg, void *parg)
 			EVP_PKEY *ptmp;
 			int rv = 0;
 			sc = s->session->sess_cert;
-#if !defined(OPENSSL_NO_RSA) && !defined(OPENSSL_NO_DH) && !defined(OPENSSL_NO_EC)
+#if !defined(OPENSSL_NO_RSA) && !defined(OPENSSL_NO_DH) && !defined(OPENSSL_NO_EC) && !defined(OPENSSL_NO_ECDH)
 			if (!sc->peer_rsa_tmp && !sc->peer_dh_tmp
 							&& !sc->peer_ecdh_tmp)
 				return 0;
@@ -4342,9 +4344,11 @@ long ssl3_ctx_ctrl(SSL_CTX *ctx, int cmd, long larg, void *parg)
 		return tls1_set_curves_list(&ctx->tlsext_ellipticcurvelist,
 					&ctx->tlsext_ellipticcurvelist_length,
 								parg);
+#ifndef OPENSSL_NO_ECDH
 	case SSL_CTRL_SET_ECDH_AUTO:
 		ctx->cert->ecdh_tmp_auto = larg;
 		return 1;
+#endif
 #endif
 	case SSL_CTRL_SET_SIGALGS:
 		return tls1_set_sigalgs(ctx->cert, parg, larg, 0);
@@ -4553,17 +4557,17 @@ SSL_CIPHER *ssl3_choose_cipher(SSL *s, STACK_OF(SSL_CIPHER) *clnt,
 #endif
 
 #ifdef CIPHER_DEBUG
-	printf("Server has %d from %p:\n", sk_SSL_CIPHER_num(srvr), (void *)srvr);
+	fprintf(stderr, "Server has %d from %p:\n", sk_SSL_CIPHER_num(srvr), (void *)srvr);
 	for(i=0 ; i < sk_SSL_CIPHER_num(srvr) ; ++i)
 		{
 		c=sk_SSL_CIPHER_value(srvr,i);
-		printf("%p:%s\n",(void *)c,c->name);
+		fprintf(stderr, "%p:%s\n",(void *)c,c->name);
 		}
-	printf("Client sent %d from %p:\n", sk_SSL_CIPHER_num(clnt), (void *)clnt);
+	fprintf(stderr, "Client sent %d from %p:\n", sk_SSL_CIPHER_num(clnt), (void *)clnt);
 	for(i=0 ; i < sk_SSL_CIPHER_num(clnt) ; ++i)
 	    {
 	    c=sk_SSL_CIPHER_value(clnt,i);
-	    printf("%p:%s\n",(void *)c,c->name);
+	    fprintf(stderr, "%p:%s\n",(void *)c,c->name);
 	    }
 #endif
 
@@ -4605,7 +4609,7 @@ SSL_CIPHER *ssl3_choose_cipher(SSL *s, STACK_OF(SSL_CIPHER) *clnt,
 #endif
 			
 #ifdef KSSL_DEBUG
-/*		printf("ssl3_choose_cipher %d alg= %lx\n", i,c->algorithms);*/
+/*		fprintf(stderr,"ssl3_choose_cipher %d alg= %lx\n", i,c->algorithms);*/
 #endif    /* KSSL_DEBUG */
 
 		alg_k=c->algorithm_mkey;
@@ -4628,7 +4632,7 @@ SSL_CIPHER *ssl3_choose_cipher(SSL *s, STACK_OF(SSL_CIPHER) *clnt,
 			{
 			ok = (alg_k & emask_k) && (alg_a & emask_a);
 #ifdef CIPHER_DEBUG
-			printf("%d:[%08lX:%08lX:%08lX:%08lX]%p:%s (export)\n",ok,alg_k,alg_a,emask_k,emask_a,
+			fprintf(stderr, "%d:[%08lX:%08lX:%08lX:%08lX]%p:%s (export)\n",ok,alg_k,alg_a,emask_k,emask_a,
 			       (void *)c,c->name);
 #endif
 			}
@@ -4636,17 +4640,19 @@ SSL_CIPHER *ssl3_choose_cipher(SSL *s, STACK_OF(SSL_CIPHER) *clnt,
 			{
 			ok = (alg_k & mask_k) && (alg_a & mask_a);
 #ifdef CIPHER_DEBUG
-			printf("%d:[%08lX:%08lX:%08lX:%08lX]%p:%s\n",ok,alg_k,alg_a,mask_k,mask_a,(void *)c,
+			fprintf(stderr, "%d:[%08lX:%08lX:%08lX:%08lX]%p:%s\n",ok,alg_k,alg_a,mask_k,mask_a,(void *)c,
 			       c->name);
 #endif
 			}
 
 #ifndef OPENSSL_NO_TLSEXT
 #ifndef OPENSSL_NO_EC
+#ifndef OPENSSL_NO_ECDH
 		/* if we are considering an ECC cipher suite that uses
 		 * an ephemeral EC key check it */
 		if (alg_k & SSL_kEECDH)
 			ok = ok && tls1_check_ec_tmp_key(s, c->id);
+#endif /* OPENSSL_NO_ECDH */
 #endif /* OPENSSL_NO_EC */
 #endif /* OPENSSL_NO_TLSEXT */
 

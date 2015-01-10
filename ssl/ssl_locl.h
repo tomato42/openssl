@@ -1212,7 +1212,6 @@ int dtls1_write_bytes(SSL *s, int type, const void *buf, int len);
 
 int dtls1_send_change_cipher_spec(SSL *s, int a, int b);
 int dtls1_send_finished(SSL *s, int a, int b, const char *sender, int slen);
-unsigned long dtls1_output_cert_chain(SSL *s, CERT_PKEY *cpk);
 int dtls1_read_failed(SSL *s, int code);
 int dtls1_buffer_message(SSL *s, int ccs);
 int dtls1_retransmit_message(SSL *s, unsigned short seq, 
@@ -1266,7 +1265,6 @@ int ssl3_send_hello_request(SSL *s);
 int ssl3_send_server_key_exchange(SSL *s);
 int ssl3_send_certificate_request(SSL *s);
 int ssl3_send_server_done(SSL *s);
-int ssl3_check_client_hello(SSL *s);
 int ssl3_get_client_certificate(SSL *s);
 int ssl3_get_client_key_exchange(SSL *s);
 int ssl3_get_cert_verify(SSL *s);
@@ -1333,7 +1331,9 @@ int tls1_set_curves(unsigned char **pext, size_t *pextlen,
 			int *curves, size_t ncurves);
 int tls1_set_curves_list(unsigned char **pext, size_t *pextlen, 
 				const char *str);
+#ifndef OPENSSL_NO_ECDH
 int tls1_check_ec_tmp_key(SSL *s, unsigned long id);
+#endif /* OPENSSL_NO_ECDH */
 #endif /* OPENSSL_NO_EC */
 
 #ifndef OPENSSL_NO_TLSEXT

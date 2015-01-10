@@ -941,7 +941,7 @@ int ssl3_get_server_hello(SSL *s)
 			al = SSL_AD_PROTOCOL_VERSION;
 			goto f_err;
 			}
-		s->version = s->client_version = s->method->version;
+		s->version = s->method->version;
 		}
 
 	if ((p[0] != (s->version>>8)) || (p[1] != (s->version&0xff)))
@@ -1263,9 +1263,9 @@ int ssl3_get_server_certificate(SSL *s)
 	            ? 0 : 1;
 
 #ifdef KSSL_DEBUG
-	printf("pkey,x = %p, %p\n", pkey,x);
-	printf("ssl_cert_type(x,pkey) = %d\n", ssl_cert_type(x,pkey));
-	printf("cipher, alg, nc = %s, %lx, %lx, %d\n", s->s3->tmp.new_cipher->name,
+	fprintf(stderr,"pkey,x = %p, %p\n", pkey,x);
+	fprintf(stderr,"ssl_cert_type(x,pkey) = %d\n", ssl_cert_type(x,pkey));
+	fprintf(stderr,"cipher, alg, nc = %s, %lx, %lx, %d\n", s->s3->tmp.new_cipher->name,
 		s->s3->tmp.new_cipher->algorithm_mkey, s->s3->tmp.new_cipher->algorithm_auth, need_cert);
 #endif    /* KSSL_DEBUG */
 
@@ -1363,6 +1363,8 @@ int ssl3_get_key_exchange(SSL *s)
 	int encoded_pt_len = 0;
 #endif
 
+	EVP_MD_CTX_init(&md_ctx);
+
 	/* use same message size as in ssl3_get_certificate_request()
 	 * as ServerKeyExchange message may be skipped */
 	n=s->method->ssl_get_message(s,
@@ -1373,14 +1375,26 @@ int ssl3_get_key_exchange(SSL *s)
 		&ok);
 	if (!ok) return((int)n);
 
+	alg_k=s->s3->tmp.new_cipher->algorithm_mkey;
+
 	if (s->s3->tmp.message_type != SSL3_MT_SERVER_KEY_EXCHANGE)
 		{
+		/*
+		 * Can't skip server key exchange if this is an ephemeral
+		 * ciphersuite.
+		 */
+		if (alg_k & (SSL_kDHE|SSL_kECDHE))
+			{
+			SSLerr(SSL_F_SSL3_GET_KEY_EXCHANGE, SSL_R_UNEXPECTED_MESSAGE);
+			al = SSL_AD_UNEXPECTED_MESSAGE;
+			goto f_err;
+			}
 #ifndef OPENSSL_NO_PSK
 		/* In PSK ciphersuites, ServerKeyExchange can be
 		   omitted if no identity hint is sent. Set
 		   session->sess_cert for plain PSK anyway to avoid problems
 		   later.*/
-		if (s->s3->tmp.new_cipher->algorithm_mkey & SSL_kPSK)
+		if (alg_k & SSL_kPSK)
 			{
 			s->session->sess_cert=ssl_sess_cert_new();
 			if (s->ctx->psk_identity_hint)
@@ -1425,9 +1439,7 @@ int ssl3_get_key_exchange(SSL *s)
 	/* Total length of the parameters including the length prefix */
 	param_len=0;
 
-	alg_k=s->s3->tmp.new_cipher->algorithm_mkey;
 	alg_a=s->s3->tmp.new_cipher->algorithm_auth;
-	EVP_MD_CTX_init(&md_ctx);
 
 	al=SSL_AD_DECODE_ERROR;
 
@@ -1620,6 +1632,13 @@ int ssl3_get_key_exchange(SSL *s)
 #endif
 		     ))
 		{
+		/* Temporary RSA keys only allowed in export ciphersuites */
+		if (!SSL_C_IS_EXPORT(s->s3->tmp.new_cipher))
+			{
+			al=SSL_AD_UNEXPECTED_MESSAGE;
+			SSLerr(SSL_F_SSL3_GET_KEY_EXCHANGE,SSL_R_UNEXPECTED_MESSAGE);
+			goto f_err;
+			}
 		if ((rsa=RSA_new()) == NULL)
 			{
 			SSLerr(SSL_F_SSL3_GET_KEY_EXCHANGE,ERR_R_MALLOC_FAILURE);
@@ -2554,7 +2573,7 @@ int ssl3_send_client_key_exchange(SSL *s)
 			EVP_CIPHER_CTX_init(&ciph_ctx);
 
 #ifdef KSSL_DEBUG
-			printf("ssl3_send_client_key_exchange(%lx & %lx)\n",
+			fprintf(stderr,"ssl3_send_client_key_exchange(%lx & %lx)\n",
 				alg_k, SSL_kKRB5);
 #endif	/* KSSL_DEBUG */
 
@@ -2570,9 +2589,9 @@ int ssl3_send_client_key_exchange(SSL *s)
 			    goto err;
 #ifdef KSSL_DEBUG
 			{
-			printf("kssl_cget_tkt rtn %d\n", krb5rc);
+			fprintf(stderr,"kssl_cget_tkt rtn %d\n", krb5rc);
 			if (krb5rc && kssl_err.text)
-			  printf("kssl_cget_tkt kssl_err=%s\n", kssl_err.text);
+			  fprintf(stderr,"kssl_cget_tkt kssl_err=%s\n", kssl_err.text);
 			}
 #endif	/* KSSL_DEBUG */
 
@@ -3554,8 +3573,13 @@ int ssl3_send_client_certificate(SSL *s)
 	if (s->state == SSL3_ST_CW_CERT_C)
 		{
 		s->state=SSL3_ST_CW_CERT_D;
-		ssl3_output_cert_chain(s,
-			(s->s3->tmp.cert_req == 2)?NULL:s->cert->key);
+		if (!ssl3_output_cert_chain(s,
+			(s->s3->tmp.cert_req == 2)?NULL:s->cert->key))
+			{
+			SSLerr(SSL_F_SSL3_SEND_CLIENT_CERTIFICATE, ERR_R_INTERNAL_ERROR);
+			ssl3_send_alert(s,SSL3_AL_FATAL,SSL_AD_INTERNAL_ERROR);
+			return 0;
+			}
 		}
 	/* SSL3_ST_CW_CERT_D */
 	return ssl_do_write(s);
