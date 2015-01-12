@@ -18,9 +18,12 @@ The main reason of the fork is to include ChaCha20, Poly1305, other (experimenta
 * Additions to s_client:
   * -proxy (RT #2651)
   * -starttls telnet (RT #2451)
-  * -starttls xmpp improvement
+  * [-starttls xmpp improvement (RT #2860)](https://github.com/PeterMosmans/openssl/commit/854eb9c88da8b742c1d77a11058fcd0d4036c0da)
   * [-starttls ldap support (RT #2665)](https://github.com/PeterMosmans/openssl/commit/f7e338776d998cb2f2d9ff133473cc87b337821a)
+  * [-fix Windows blocking (RT #3464)](https://github.com/PeterMosmans/openssl/commit/68ab9b308e173072e5015063be7e194bec1f311f)
 * Minor changes to Makefiles to simplify building using the mingw / mingw64 platform on Windows
+  * [-universal build time instead of local build time](https://github.com/PeterMosmans/openssl/commit/51cf1c9043efdc06937c0d3550ff8f6fd8e43e1f)
+* [Test all SSL ciphers (RT #2584)](https://github.com/PeterMosmans/openssl/commit/85f54b0907f8b7bd67336b742b162effb154ed20)
 
 #### Thanks to
 * [Dirk Wetter](https://github.com/drwetter)
