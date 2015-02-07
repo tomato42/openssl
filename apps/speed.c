@@ -226,7 +226,7 @@
 # endif
 
 # undef BUFSIZE
-# define BUFSIZE ((long)1024*8+1)
+# define BUFSIZE ((long)1024*8+64)
 static volatile int run = 0;
 
 static int mr = 0;
@@ -977,11 +977,11 @@ int MAIN(int argc, char **argv)
             doit[D_CBC_256_CML] = 1;
         } else
 # endif
-# ifndef OPENSSL_NO_CHACHA && ifndef OPENSSL_NO_POLY1305
+# if !defined(OPENSSL_NO_CHACHA) && !defined(OPENSSL_NO_POLY1305)
         if (strcmp(*argv,"chacha20-poly1305") == 0) {
-			doit[D_CHACHA20_POLY1305]=1;
-		} else
-# endif          
+            doit[D_CHACHA20_POLY1305] = 1;
+        } else
+# endif
 # ifndef OPENSSL_NO_RSA
         if (strcmp(*argv, "rsa") == 0) {
             rsa_doit[R_RSA_512] = 1;
@@ -1137,9 +1137,10 @@ int MAIN(int argc, char **argv)
             BIO_printf(bio_err, "des-cbc  des-ede3 ");
 # endif
 # ifndef OPENSSL_NO_AES
+            BIO_printf(bio_err, "\n");
             BIO_printf(bio_err, "aes-128-cbc aes-192-cbc aes-256-cbc ");
             BIO_printf(bio_err, "aes-128-ige aes-192-ige aes-256-ige ");
-            BIO_printf(bio_err,"aes-128-gcm");
+            BIO_printf(bio_err, "aes-128-gcm");
 # endif
 # ifndef OPENSSL_NO_CAMELLIA
             BIO_printf(bio_err, "\n");
@@ -1149,9 +1150,10 @@ int MAIN(int argc, char **argv)
 # ifndef OPENSSL_NO_RC4
             BIO_printf(bio_err, "rc4");
 # endif
-#if !defined(OPENSSL_NO_CHACHA) && !defined(OPENSSL_NO_POLY1305)
-			BIO_printf(bio_err," chacha20-poly1305");
-#endif                        
+# if !defined(OPENSSL_NO_CHACHA) && !defined(OPENSSL_NO_POLY1305)
+            BIO_printf(bio_err, "\n");
+            BIO_printf(bio_err,"chacha20-poly1305");
+# endif
             BIO_printf(bio_err, "\n");
 
 # ifndef OPENSSL_NO_RSA
@@ -1385,7 +1387,7 @@ int MAIN(int argc, char **argv)
     c[D_IGE_256_AES][0] = count;
     c[D_GHASH][0] = count;
     c[D_AES_128_GCM][0] = count;
-	c[D_CHACHA20_POLY1305][0] = count;        
+    c[D_CHACHA20_POLY1305][0] = count;
 
     for (i = 1; i < SIZE_NUM; i++) {
         c[D_MD2][i] = c[D_MD2][0] * 4 * lengths[0] / lengths[i];
@@ -1837,26 +1839,51 @@ int MAIN(int argc, char **argv)
         CRYPTO_gcm128_release(ctx);
     }
 # endif
-	if (doit[D_AES_128_GCM]) {
-		const EVP_AEAD *aead = EVP_aead_aes_128_gcm();
-		static const unsigned char nonce[32] = {0};
-		size_t nonce_len;
-		EVP_AEAD_CTX ctx;
+    if (doit[D_AES_128_GCM]) {
+        const EVP_AEAD *aead = EVP_aead_aes_128_gcm();
+        static const unsigned char nonce[32] = {0};
+        size_t nonce_len;
+        EVP_AEAD_CTX ctx;
 
-		EVP_AEAD_CTX_init(&ctx, aead, key32, EVP_AEAD_key_length(aead), EVP_AEAD_DEFAULT_TAG_LENGTH, NULL);
-		nonce_len = EVP_AEAD_nonce_length(aead);
+        EVP_AEAD_CTX_init(&ctx, aead, key32, EVP_AEAD_key_length(aead),
+                          EVP_AEAD_DEFAULT_TAG_LENGTH, NULL);
+        nonce_len = EVP_AEAD_nonce_length(aead);
 
-		for (j=0; j<SIZE_NUM; j++) {
-			print_message(names[D_AES_128_GCM],c[D_AES_128_GCM][j],lengths[j]);
-			Time_F(START);
-			for (count=0,run=1; COND(c[D_AES_128_GCM][j]); count++)
-				EVP_AEAD_CTX_seal(&ctx,buf, BUFSIZE, nonce, nonce_len, buf, lengths[j], NULL, 0);
-			d=Time_F(STOP);
-			print_result(D_AES_128_GCM,j,count,d);
-		}
-		EVP_AEAD_CTX_cleanup(&ctx);
-	}
+        for (j = 0; j < SIZE_NUM; j++) {
+            print_message(names[D_AES_128_GCM], c[D_AES_128_GCM][j],lengths[j]);
+            Time_F(START);
+            for (count = 0, run = 1; COND(c[D_AES_128_GCM][j]); count++)
+                EVP_AEAD_CTX_seal(&ctx, buf, BUFSIZE, nonce, nonce_len, buf,
+                                  lengths[j], NULL, 0);
+            d = Time_F(STOP);
+            print_result(D_AES_128_GCM, j, count, d);
+        }
+        EVP_AEAD_CTX_cleanup(&ctx);
+    }
+# if !defined(OPENSSL_NO_CHACHA) && !defined(OPENSSL_NO_POLY1305)
+    if (doit[D_CHACHA20_POLY1305]) {
+        const EVP_AEAD *aead = EVP_aead_chacha20_poly1305();
+        static const unsigned char nonce[32] = {0};
+        size_t nonce_len;
+        EVP_AEAD_CTX ctx;
 
+        EVP_AEAD_CTX_init(&ctx, aead, key32, EVP_AEAD_key_length(aead),
+                          EVP_AEAD_DEFAULT_TAG_LENGTH, NULL);
+        nonce_len = EVP_AEAD_nonce_length(aead);
+
+        for (j = 0; j < SIZE_NUM; j++) {
+            print_message(names[D_CHACHA20_POLY1305], c[D_CHACHA20_POLY1305][j],
+                          lengths[j]);
+            Time_F(START);
+            for (count = 0, run = 1; COND(c[D_CHACHA20_POLY1305][j]); count++)
+                EVP_AEAD_CTX_seal(&ctx, buf, BUFSIZE, nonce, nonce_len, buf,
+                                  lengths[j], NULL, 0);
+            d = Time_F(STOP);
+            print_result(D_CHACHA20_POLY1305, j, count, d);
+        }
+        EVP_AEAD_CTX_cleanup(&ctx);
+    }
+# endif
 # ifndef OPENSSL_NO_CAMELLIA
     if (doit[D_CBC_128_CML]) {
         for (j = 0; j < SIZE_NUM; j++) {
