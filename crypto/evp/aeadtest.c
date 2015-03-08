@@ -115,7 +115,7 @@ static int run_test_case(const EVP_AEAD* aead,
 			 unsigned int line_no)
 	{
 	EVP_AEAD_CTX ctx;
-	ssize_t n;
+	ossl_ssize_t n;
 	size_t un;
 	unsigned char out[BUF_MAX+EVP_AEAD_MAX_TAG_LENGTH], out2[BUF_MAX];
 

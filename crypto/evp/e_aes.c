@@ -1978,7 +1978,7 @@ static void aead_aes_128_gcm_cleanup(EVP_AEAD_CTX *ctx)
 	OPENSSL_free(gcm_ctx);
 }
 
-static ssize_t aead_aes_128_gcm_seal(const EVP_AEAD_CTX *ctx,
+static ossl_ssize_t aead_aes_128_gcm_seal(const EVP_AEAD_CTX *ctx,
 	unsigned char *out, size_t max_out_len,
 	const unsigned char *nonce, size_t nonce_len,
 	const unsigned char *in, size_t in_len,
@@ -2013,7 +2013,7 @@ static ssize_t aead_aes_128_gcm_seal(const EVP_AEAD_CTX *ctx,
 	return in_len + gcm_ctx->tag_len;
 }
 
-static ssize_t aead_aes_128_gcm_open(const EVP_AEAD_CTX *ctx,
+static ossl_ssize_t aead_aes_128_gcm_open(const EVP_AEAD_CTX *ctx,
 	unsigned char *out, size_t max_out_len,
 	const unsigned char *nonce, size_t nonce_len,
 	const unsigned char *in, size_t in_len,

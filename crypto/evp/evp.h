@@ -1434,7 +1434,7 @@ void EVP_AEAD_CTX_cleanup(EVP_AEAD_CTX *ctx);
  * insufficient, -1 will be returned.
  *
  * If |in| and |out| alias then |out| must be <= |in|. */
-ssize_t EVP_AEAD_CTX_seal(const EVP_AEAD_CTX *ctx,
+ossl_ssize_t EVP_AEAD_CTX_seal(const EVP_AEAD_CTX *ctx,
 			  unsigned char *out, size_t max_out_len,
 			  const unsigned char *nonce, size_t nonce_len,
 			  const unsigned char *in, size_t in_len,
@@ -1457,7 +1457,7 @@ ssize_t EVP_AEAD_CTX_seal(const EVP_AEAD_CTX *ctx,
  * insufficient, -1 will be returned.
  *
  * If |in| and |out| alias then |out| must be <= |in|. */
-ssize_t EVP_AEAD_CTX_open(const EVP_AEAD_CTX *ctx,
+ossl_ssize_t EVP_AEAD_CTX_open(const EVP_AEAD_CTX *ctx,
 			  unsigned char *out, size_t max_out_len,
 			  const unsigned char *nonce, size_t nonce_len,
 			  const unsigned char *in, size_t in_len,

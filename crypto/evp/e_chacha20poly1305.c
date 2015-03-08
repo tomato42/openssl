@@ -120,7 +120,7 @@ static void poly1305_update_with_length(poly1305_state *poly1305,
 	CRYPTO_poly1305_update(poly1305, length_bytes, sizeof(length_bytes));
 }
 
-static ssize_t aead_chacha20_poly1305_seal(const EVP_AEAD_CTX *ctx,
+static ossl_ssize_t aead_chacha20_poly1305_seal(const EVP_AEAD_CTX *ctx,
 	unsigned char *out, size_t max_out_len,
 	const unsigned char *nonce, size_t nonce_len,
 	const unsigned char *in, size_t in_len,
@@ -176,7 +176,7 @@ static ssize_t aead_chacha20_poly1305_seal(const EVP_AEAD_CTX *ctx,
 	return in_len + POLY1305_TAG_LEN;
 	}
 
-static ssize_t aead_chacha20_poly1305_open(const EVP_AEAD_CTX *ctx,
+static ossl_ssize_t aead_chacha20_poly1305_open(const EVP_AEAD_CTX *ctx,
 	unsigned char *out, size_t max_out_len,
 	const unsigned char *nonce, size_t nonce_len,
 	const unsigned char *in, size_t in_len,

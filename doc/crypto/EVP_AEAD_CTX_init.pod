@@ -12,12 +12,12 @@ EVP_AEAD_CTX_init, EVP_AEAD_CTX_cleanup, EVP_AEAD_CTX_seal, EVP_AEAD_CTX_open - 
                        const unsigned char *key, size_t key_len,
                        size_t tag_len, ENGINE *impl);
  void EVP_AEAD_CTX_cleanup(EVP_AEAD_CTX *ctx);
- ssize_t EVP_AEAD_CTX_seal(const EVP_AEAD_CTX *ctx,
+ ossl_ssize_t EVP_AEAD_CTX_seal(const EVP_AEAD_CTX *ctx,
                            unsigned char *out, size_t max_out_len,
                            const unsigned char *nonce, size_t nonce_len,
                            const unsigned char *in, size_t in_len,
                            const unsigned char *ad, size_t ad_len);
- ssize_t EVP_AEAD_CTX_open(const EVP_AEAD_CTX *ctx,
+ ossl_ssize_t EVP_AEAD_CTX_open(const EVP_AEAD_CTX *ctx,
                            unsigned char *out, size_t max_out_len,
                            const unsigned char *nonce, size_t nonce_len,
                            const unsigned char *in, size_t in_len,
@@ -84,10 +84,10 @@ This case will cause an error.
 
 =head1 RETURN VALUES
 
-The "seal" and "open" operations return an C<ssize_t> with value -1 on error,
+The "seal" and "open" operations return an C<ossl_ssize_t> with value -1 on error,
 otherwise they return the number of output bytes written. An error will be
 returned if the input length is large enough that the output size exceeds the
-range of a C<ssize_t>.
+range of a C<ossl_ssize_t>.
 
 =head1 HISTORY
 

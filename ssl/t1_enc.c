@@ -835,7 +835,7 @@ int tls1_enc(SSL *s, int send)
 		{
 		unsigned char ad[13], *seq, *in, *out, nonce[16];
 		unsigned nonce_used;
-		ssize_t n;
+		ossl_ssize_t n;
 
 		seq = send ? s->s3->write_sequence : s->s3->read_sequence;
 
