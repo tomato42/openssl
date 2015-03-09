@@ -13,8 +13,8 @@ AR=		ar r
 CFLAGS= $(INCLUDES) $(CFLAG)
 
 GENERAL=Makefile
-TEST=evp_test.c aeadtest.c
-TESTDATA= 	evptests.txt aes_128_gcm_tests.txt aes_256_gcm_tests.txt \
+TEST=evp_test.c evp_extra_test.c aeadtest.c
+TESTDATA=evptests.txt aes_128_gcm_tests.txt aes_256_gcm_tests.txt \
 		chacha20_poly1305_tests.txt
 APPS=
 

@@ -707,6 +707,10 @@ int ssl3_write_bytes(SSL *s, int type, const void *buf_, int len)
                 packlen *= 4;
 
             wb->buf = OPENSSL_malloc(packlen);
+            if(!wb->buf) {
+                SSLerr(SSL_F_SSL3_WRITE_BYTES, ERR_R_MALLOC_FAILURE);
+                return -1;
+            }
             wb->len = packlen;
         } else if (tot == len) { /* done? */
             OPENSSL_free(wb->buf); /* free jumbo buffer */
@@ -1428,7 +1432,7 @@ int ssl3_read_bytes(SSL *s, int type, unsigned char *buf, int len, int peek)
             cb(s, SSL_CB_READ_ALERT, j);
         }
 
-        if (alert_level == 1) { /* warning */
+        if (alert_level == SSL3_AL_WARNING) {
             s->s3->warn_alert = alert_descr;
             if (alert_descr == SSL_AD_CLOSE_NOTIFY) {
                 s->shutdown |= SSL_RECEIVED_SHUTDOWN;
@@ -1451,7 +1455,7 @@ int ssl3_read_bytes(SSL *s, int type, unsigned char *buf, int len, int peek)
             else if (alert_descr == SSL_AD_MISSING_SRP_USERNAME)
                 return (0);
 #endif
-        } else if (alert_level == 2) { /* fatal */
+        } else if (alert_level == SSL3_AL_FATAL) {
             char tmp[16];
 
             s->rwstate = SSL_NOTHING;

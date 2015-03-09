@@ -2838,6 +2838,11 @@ static void multiblock_speed(const EVP_CIPHER *evp_cipher)
 
     inp = OPENSSL_malloc(mblengths[num - 1]);
     out = OPENSSL_malloc(mblengths[num - 1] + 1024);
+    if(!inp || !out) {
+        BIO_printf(bio_err,"Out of memory\n");
+        goto end;
+    }
+
 
     EVP_CIPHER_CTX_init(&ctx);
     EVP_EncryptInit_ex(&ctx, evp_cipher, NULL, no_key, no_iv);
@@ -2922,7 +2927,10 @@ static void multiblock_speed(const EVP_CIPHER *evp_cipher)
         fprintf(stdout, "\n");
     }
 
-    OPENSSL_free(inp);
-    OPENSSL_free(out);
+end:
+    if(inp)
+        OPENSSL_free(inp);
+    if(out)
+        OPENSSL_free(out);
 }
 #endif
