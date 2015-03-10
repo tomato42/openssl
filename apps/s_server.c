@@ -1740,12 +1740,6 @@ int MAIN(int argc, char *argv[])
         SSL_CTX_set_options(ctx, SSL_OP_NETSCAPE_DEMO_CIPHER_CHANGE_BUG);
     if (exc)
         ssl_ctx_set_excert(ctx, exc);
-    /*
-     * DTLS: partial reads end up discarding unread UDP bytes :-( Setting
-     * read ahead solves this problem.
-     */
-    if (socket_type == SOCK_DGRAM)
-        SSL_CTX_set_read_ahead(ctx, 1);
 
     if (state)
         SSL_CTX_set_info_callback(ctx, apps_ssl_info_callback);

@@ -2068,7 +2068,7 @@ BEGIN
 	    VALUE "ProductVersion", "$version\\0"
 	    // Optional:
 	    //VALUE "Comments", "\\0"
-	    VALUE "LegalCopyright", "Copyright  Â© 1998-2005 The OpenSSL Project. Copyright Â© 1995-1998 Eric A. Young, Tim J. Hudson. All rights reserved.\\0"
+	    VALUE "LegalCopyright", "Copyright  © 1998-2005 The OpenSSL Project. Copyright © 1995-1998 Eric A. Young, Tim J. Hudson. All rights reserved.\\0"
 	    //VALUE "LegalTrademarks", "\\0"
 	    //VALUE "PrivateBuild", "\\0"
 	    //VALUE "SpecialBuild", "\\0"
@@ -2180,11 +2180,11 @@ sub print_table_entry
 	my ($cc, $cflags, $unistd, $thread_cflag, $sys_id, $lflags,
 	    $bn_ops, $cpuid_obj, $bn_obj, $ec_obj, $des_obj, $aes_obj, $bf_obj,
 	    $md5_obj, $sha1_obj, $cast_obj, $rc4_obj,
-            $chacha_obj, $poly1305_obj, $rmd160_obj,
+        $chacha_obj, $poly1305_obj, $rmd160_obj,
 	    $rc5_obj, $wp_obj, $cmll_obj, $modes_obj, $engines_obj,
 	    $perlasm_scheme, $dso_scheme, $shared_target, $shared_cflag,
 	    $shared_ldflag, $shared_extension, $ranlib, $arflags, $multilib)=
-	split(/\s*:\s*/,$table{$target} . ":" x 33 , -1);
+	split(/\s*:\s*/,$table{$target} . ":" x 32 , -1);
 			
 	print <<EOF
 
@@ -2237,7 +2237,7 @@ sub test_sanity
 
 	foreach $target (sort keys %table)
 		{
-		@fields = split(/\s*:\s*/,$table{$target} . ":" x 31 , -1);
+		@fields = split(/\s*:\s*/,$table{$target} . ":" x 32 , -1);
 
 		if ($fields[$idx_dso_scheme-1] =~ /^(beos|dl|dlfcn|win32|vms)$/)
 			{

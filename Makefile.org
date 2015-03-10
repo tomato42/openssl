@@ -280,16 +280,15 @@ build_libs: build_crypto build_ssl build_engines
 
 build_crypto:
 	@dir=crypto; target=all; $(BUILD_ONE_CMD)
-build_ssl: build_crypto
+build_ssl:
 	@dir=ssl; target=all; $(BUILD_ONE_CMD)
-build_engines: build_crypto
-	@dir=engines; target=all; AS='$(CC) -c'; export AS; $(BUILD_ONE_CMD)
-
-build_apps: build_libs
+build_engines:
+	@dir=engines; target=all; $(BUILD_ONE_CMD)
+build_apps:
 	@dir=apps; target=all; $(BUILD_ONE_CMD)
-build_tests: build_libs
+build_tests:
 	@dir=test; target=all; $(BUILD_ONE_CMD)
-build_tools: build_libs
+build_tools:
 	@dir=tools; target=all; $(BUILD_ONE_CMD)
 
 all_testapps: build_libs build_testapps
@@ -410,7 +409,7 @@ libclean:
 	rm -f *.map *.so *.so.* *.dylib *.dll engines/*.so engines/*.dll engines/*.dylib *.a engines/*.a */lib */*/lib
 
 clean:	libclean
-	rm -f shlib/*.o *.o core a.out fluff rehash.time testlog make.log cctest cctest.*
+	rm -f shlib/*.o *.o core a.out fluff rehash.time testlog make.log cctest cctest.c
 	@set -e; target=clean; $(RECURSIVE_BUILD_CMD)
 	rm -f $(LIBS)
 	rm -f openssl.pc libssl.pc libcrypto.pc
