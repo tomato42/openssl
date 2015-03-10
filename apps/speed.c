@@ -968,7 +968,7 @@ int MAIN(int argc, char **argv)
             doit[D_GHASH] = 1;
         } else if (strcmp(*argv,"aes-128-gcm") == 0) {
             doit[D_AES_128_GCM] = 1;
-        }
+        } else
 # endif
 # ifndef OPENSSL_NO_CAMELLIA
         if (strcmp(*argv, "camellia") == 0) {
