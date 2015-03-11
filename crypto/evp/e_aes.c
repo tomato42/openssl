@@ -1271,15 +1271,27 @@ static int aes_gcm_ctrl(EVP_CIPHER_CTX *c, int type, int arg, void *ptr)
 static ctr128_f aes_gcm_set_key(AES_KEY *aes_key, GCM128_CONTEXT *gcm_ctx,
                                 const unsigned char *key, size_t key_len)
 {
-#ifdef BSAES_CAPABLE
+# ifdef HWAES_CAPABLE
+  if (HWAES_CAPABLE) {
+      HWAES_set_encrypt_key(key, key_len * 8, aes_key);
+      CRYPTO_gcm128_init(&gctx->gcm, &gctx->ks,
+                         (block128_f) HWAES_encrypt);
+#  ifdef HWAES_ctr32_encrypt_blocks
+                return (ctr128_f) HWAES_ctr32_encrypt_blocks;
+#  else
+                return NULL;
+#  endif
+  } else
+# endif
+# ifdef BSAES_CAPABLE
     if (BSAES_CAPABLE) {
-        AES_set_encrypt_key(key,key_len*8,aes_key);
-        CRYPTO_gcm128_init(gcm_ctx,aes_key,
-                           (block128_f)AES_encrypt);
-        return (ctr128_f)bsaes_ctr32_encrypt_blocks;
+        AES_set_encrypt_key(key, key_len * 8, aes_key);
+        CRYPTO_gcm128_init(gcm_ctx, aes_key,
+                           (block128_f) AES_encrypt);
+        return (ctr128_f) bsaes_ctr32_encrypt_blocks;
     }
-#endif
-#ifdef VPAES_CAPABLE
+# endif
+# ifdef VPAES_CAPABLE
     if (VPAES_CAPABLE) {
         vpaes_set_encrypt_key(key,key_len*8,aes_key);
         CRYPTO_gcm128_init(gcm_ctx,aes_key,
@@ -1290,16 +1302,16 @@ static ctr128_f aes_gcm_set_key(AES_KEY *aes_key, GCM128_CONTEXT *gcm_ctx,
         (void)0;	/* terminate potentially open 'else' */
 
     AES_set_encrypt_key(key, key_len*8, aes_key);
-    CRYPTO_gcm128_init(gcm_ctx, aes_key, (block128_f)AES_encrypt);
-#ifdef AES_CTR_ASM
-    return (ctr128_f)AES_ctr32_encrypt;
-#else
+    CRYPTO_gcm128_init(gcm_ctx, aes_key, (block128_f) AES_encrypt);
+# ifdef AES_CTR_ASM
+    return (ctr128_f) AES_ctr32_encrypt;
+# else
     return NULL;
-#endif
+# endif
 }
 
 static int aes_gcm_init_key(EVP_CIPHER_CTX *ctx, const unsigned char *key,
-                        const unsigned char *iv, int enc)
+                            const unsigned char *iv, int enc)
 {
     EVP_AES_GCM_CTX *gctx = ctx->cipher_data;
     if (!iv && !key)
@@ -1307,10 +1319,8 @@ static int aes_gcm_init_key(EVP_CIPHER_CTX *ctx, const unsigned char *key,
     if (key) {
         gctx->ctr = aes_gcm_set_key(&gctx->ks, &gctx->gcm, key, ctx->key_len);
         /*
-         * If we have an iv can set it directly, otherwise use
-         * saved IV.
+         * If we have an iv can set it directly, otherwise use saved IV.
          */
-
         if (iv == NULL && gctx->iv_set)
             iv = gctx->iv;
         if (iv) {
@@ -1319,8 +1329,7 @@ static int aes_gcm_init_key(EVP_CIPHER_CTX *ctx, const unsigned char *key,
         }
         gctx->key_set = 1;
     } else {
-        /*
-         * If key set use IV, otherwise copy */
+        /* If key set use IV, otherwise copy */
         if (gctx->key_set)
             CRYPTO_gcm128_setiv(&gctx->gcm, iv, gctx->ivlen);
         else
