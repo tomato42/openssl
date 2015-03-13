@@ -9,6 +9,17 @@ You're looking at the 1.0.2-chacha branch, which aligns with the OpenSSL_1_0_2-s
 
 The main reason of the fork is to include ChaCha20, Poly1305, other (experimental/insecure) ciphers, and to add some extra features to s_client. It should compile 'as least as good' as the official OpenSSL_1_0_2-stable branch.
 
+#### Goals
+The main goals of this fork are
+
+1. add as much ciphers and (test)functionality as possible
+2. to keep the source as aligned to the original as possible
+3. keep the patches transparent (easily applicable to the original source)
+4. keep the patches maintainable
+
+#### More information
+See [https://www.onwebsecurity.com/openssl/the-work-flow-of-the-full-featured-openssl-fork-chacha20poly1305](https://www.onwebsecurity.com/openssl/the-work-flow-of-the-full-featured-openssl-fork-chacha20poly1305) for detailed differences between the official openssl source and this fork, and on the workflow of keeping everything as up-to-date as possible.
+
 #### Additions
 * Added ChaCha20 and Poly1305 ciphers (backported from the upstream 1.0.2-aead branch)
 * [Added TLS-RSA-PSK ciphers](https://github.com/PeterMosmans/openssl/commit/ba47950a02a380413f3e5dbf8d94a89eb9e2fb42)
