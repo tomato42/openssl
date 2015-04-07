@@ -121,12 +121,15 @@ static void poly1305_update_with_length(poly1305_state *poly1305,
     CRYPTO_poly1305_update(poly1305, length_bytes, sizeof(length_bytes));
 }
 
-static int aead_chacha20_poly1305_seal(const EVP_AEAD_CTX *ctx,
-                                       unsigned char *out, size_t max_out_len,
-                                       const unsigned char *nonce,
-                                       size_t nonce_len,
-                                       const unsigned char *in, size_t in_len,
-                                       const unsigned char *ad, size_t ad_len)
+static ossl_ssize_t aead_chacha20_poly1305_seal(const EVP_AEAD_CTX *ctx,
+                                                unsigned char *out,
+                                                size_t max_out_len,
+                                                const unsigned char *nonce,
+                                                size_t nonce_len,
+                                                const unsigned char *in,
+                                                size_t in_len,
+                                                const unsigned char *ad,
+                                                size_t ad_len)
 {
     const struct aead_chacha20_poly1305_ctx *c20_ctx = ctx->aead_state;
     unsigned char poly1305_key[32];
@@ -140,7 +143,8 @@ static int aead_chacha20_poly1305_seal(const EVP_AEAD_CTX *ctx,
      * |in_len_64| is needed because, on 32-bit platforms, size_t is only
      * 32-bits and this produces a warning because it's always false.
      * Casting to uint64_t inside the conditional is not sufficient to stop
-     * the warning. */
+     * the warning.
+     */
     if (in_len_64 >= (1ull << 32) * 64 - 64) {
         EVPerr(EVP_F_AEAD_CHACHA20_POLY1305_SEAL, EVP_R_TOO_LARGE);
         return -1;
@@ -176,12 +180,15 @@ static int aead_chacha20_poly1305_seal(const EVP_AEAD_CTX *ctx,
     return in_len + c20_ctx->tag_len;
     }
 
-static int aead_chacha20_poly1305_open(const EVP_AEAD_CTX *ctx,
-                                       unsigned char *out, size_t max_out_len,
-                                       const unsigned char *nonce,
-                                       size_t nonce_len,
-                                       const unsigned char *in, size_t in_len,
-                                       const unsigned char *ad, size_t ad_len)
+static ossl_ssize_t aead_chacha20_poly1305_open(const EVP_AEAD_CTX *ctx,
+                                               unsigned char *out,
+                                               size_t max_out_len,
+                                               const unsigned char *nonce,
+                                               size_t nonce_len,
+                                               const unsigned char *in,
+                                               size_t in_len,
+                                               const unsigned char *ad,
+                                               size_t ad_len)
 {
     const struct aead_chacha20_poly1305_ctx *c20_ctx = ctx->aead_state;
     unsigned char mac[POLY1305_TAG_LEN];
