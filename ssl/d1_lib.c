@@ -354,6 +354,10 @@ const SSL_CIPHER *dtls1_get_cipher(unsigned int u)
             return NULL;
     }
 
+    /* CHACHA20_POLY1305 does not work with DTLS */
+    if (ciph->algorithm_enc == SSL_CHACHA20POLY1305)
+        return NULL;
+
     return ciph;
 }
 
