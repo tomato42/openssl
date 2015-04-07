@@ -16,9 +16,12 @@ The main goals of this fork are
 2. to keep the source as aligned to the original as possible
 3. keep the patches transparent (easily applicable to the original source)
 4. keep the patches maintainable
+5. write as little custom/new code as possible
 
 #### More information
 See [https://www.onwebsecurity.com/openssl/the-work-flow-of-the-full-featured-openssl-fork-chacha20poly1305](https://www.onwebsecurity.com/openssl/the-work-flow-of-the-full-featured-openssl-fork-chacha20poly1305) for detailed differences between the official openssl source and this fork, and on the workflow of keeping everything as up-to-date as possible.
+
+Please see [https://www.onwebsecurity.com/openssl/replacing-chacha20poly1305-a-new-owner](https://www.onwebsecurity.com/openssl/replacing-chacha20poly1305-a-new-owner) for information about the future of the current ChaCha20 / Poly1305 code.
 
 #### Additions
 * Added ChaCha20 and Poly1305 ciphers (backported from the upstream 1.0.2-aead branch)
