@@ -113,8 +113,10 @@
 #include <openssl/objects.h>
 #include <openssl/evp.h>
 #include <openssl/hmac.h>
+#ifndef OPENSSL_NO_EC
 #ifdef OPENSSL_NO_EC2M
 # include <openssl/ec.h>
+#endif
 #endif
 #include <openssl/ocsp.h>
 #include <openssl/rand.h>
@@ -761,6 +763,16 @@ static int tls1_check_ec_key(SSL *s,
     for (j = 0; j <= 1; j++) {
         if (!tls1_get_curvelist(s, j, &pcurves, &num_curves))
             return 0;
+        if (j == 1 && num_curves == 0) {
+            /*
+             * If we've not received any curves then skip this check.
+             * RFC 4492 does not require the supported elliptic curves extension
+             * so if it is not sent we can just choose any curve.
+             * It is invalid to send an empty list in the elliptic curves
+             * extension, so num_curves == 0 always means no extension.
+             */
+            break;
+        }
         for (i = 0; i < num_curves; i++, pcurves += 2) {
             if (pcurves[0] == curve_id[0] && pcurves[1] == curve_id[1])
                 break;
@@ -3837,7 +3849,10 @@ int tls1_process_heartbeat(SSL *s)
         memcpy(bp, pl, payload);
         bp += payload;
         /* Random padding */
-        RAND_pseudo_bytes(bp, padding);
+        if(RAND_pseudo_bytes(bp, padding) < 0) {
+            OPENSSL_free(buffer);
+            return -1;
+        }
 
         r = ssl3_write_bytes(s, TLS1_RT_HEARTBEAT, buffer,
                              3 + payload + padding);
@@ -3872,7 +3887,7 @@ int tls1_process_heartbeat(SSL *s)
 int tls1_heartbeat(SSL *s)
 {
     unsigned char *buf, *p;
-    int ret;
+    int ret = -1;
     unsigned int payload = 18;  /* Sequence number + random bytes */
     unsigned int padding = 16;  /* Use minimum padding */
 
@@ -3920,10 +3935,16 @@ int tls1_heartbeat(SSL *s)
     /* Sequence number */
     s2n(s->tlsext_hb_seq, p);
     /* 16 random bytes */
-    RAND_pseudo_bytes(p, 16);
+    if(RAND_pseudo_bytes(p, 16) < 0) {
+        SSLerr(SSL_F_TLS1_HEARTBEAT, ERR_R_INTERNAL_ERROR);
+        goto err;
+    }
     p += 16;
     /* Random padding */
-    RAND_pseudo_bytes(p, padding);
+    if(RAND_pseudo_bytes(p, padding) < 0) {
+        SSLerr(SSL_F_TLS1_HEARTBEAT, ERR_R_INTERNAL_ERROR);
+        goto err;
+    }
 
     ret = ssl3_write_bytes(s, TLS1_RT_HEARTBEAT, buf, 3 + payload + padding);
     if (ret >= 0) {
@@ -3935,6 +3956,7 @@ int tls1_heartbeat(SSL *s)
         s->tlsext_hb_pending = 1;
     }
 
+err:
     OPENSSL_free(buf);
 
     return ret;

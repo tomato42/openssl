@@ -717,10 +717,14 @@ static void sv_usage(void)
     fprintf(stderr, " -tls1         - use TLSv1\n");
 #endif
 #ifndef OPENSSL_NO_TLS1_1
-	fprintf(stderr, " -tls1_1         - use TLSv1.1\n");
+    fprintf(stderr, " -tls1_1       - use TLSv1.1\n");
 #endif
 #ifndef OPENSSL_NO_TLS1_2
-	fprintf(stderr, " -tls1_2         - use TLSv1.2\n");
+    fprintf(stderr, " -tls1_2       - use TLSv1.2\n");
+#endif
+#ifndef OPENSSL_NO_DTLS
+    fprintf(stderr, " -dtls1        - use DTLSv1\n");
+    fprintf(stderr, " -dtls12       - use DTLSv1.2\n");
 #endif
     fprintf(stderr, " -CApath arg   - PEM format directory of CA's\n");
     fprintf(stderr, " -CAfile arg   - PEM format file of CA's\n");
@@ -883,7 +887,8 @@ int main(int argc, char *argv[])
     int badop = 0;
     int bio_pair = 0;
     int force = 0;
-    int tls1 = 0, tls1_1 = 0, tls1_2 = 0, ssl2 = 0, ssl3 = 0, ret = 1;
+    int dtls1 = 0, dtls12 = 0, tls1 = 0, ssl2 = 0, ssl3 = 0, ret = 1;
+    int tls1_1 = 0, tls1_2=0;
     int client_auth = 0;
     int server_auth = 0, i;
     struct app_verify_arg app_verify_arg =
@@ -1053,6 +1058,16 @@ int main(int argc, char *argv[])
             no_protocol = 1;
 #endif
             ssl3 = 1;
+        } else if (strcmp(*argv, "-dtls1") == 0) {
+#ifdef OPENSSL_NO_DTLS
+            no_protocol = 1;
+#endif
+            dtls1 = 1;
+        } else if (strcmp(*argv, "-dtls12") == 0) {
+#ifdef OPENSSL_NO_DTLS
+            no_protocol = 1;
+#endif
+            dtls12 = 1;
         } else if (strncmp(*argv, "-num", 4) == 0) {
             if (--argc < 1)
                 goto bad;
@@ -1188,8 +1203,8 @@ int main(int argc, char *argv[])
         goto end;
     }
 
-	if (ssl2 + ssl3 + tls1 + tls1_1 + tls1_2 > 1) {
-        fprintf(stderr, "At most one of -ssl2, -ssl3, -tls1, tls1_1 or -tls1_2 should "
+    if (ssl2 + ssl3 + tls1 + tls1_1 + tls1_2 + dtls1 + dtls12 > 1) {
+        fprintf(stderr, "At most one of -ssl2, -ssl3, -tls1, -tls1_1, -tls1_2, -dtls1 or -dtls12 should "
                 "be requested.\n");
         EXIT(1);
     }
@@ -1206,10 +1221,10 @@ int main(int argc, char *argv[])
         goto end;
     }
 
-    if (!ssl2 && !ssl3 && !tls1 && !tls1_1 && !tls1_2 && number > 1 && !reuse && !force) {
+    if (!ssl2 && !ssl3 && !tls1 && !tls1_1 && !tls1_2 && !dtls1 && !dtls12 && number > 1 && !reuse && !force) {
         fprintf(stderr, "This case cannot work.  Use -f to perform "
                 "the test anyway (and\n-d to see what happens), "
-                "or add one of -ssl2, -ssl3, -tls1, -reuse\n"
+                "or add one of ssl2, -ssl3, -tls1, -tls1_1, -tls1_2, --dtls1, -dtls12, -reuse\n"
                 "to avoid protocol mismatch.\n");
         EXIT(1);
     }
@@ -1285,6 +1300,13 @@ int main(int argc, char *argv[])
 #ifndef OPENSSL_NO_SSL3
     if (ssl3)
         meth = SSLv3_method();
+    else
+#endif
+#ifndef OPENSSL_NO_DTLS
+    if (dtls1)
+        meth = DTLSv1_method();
+    else if (dtls12)
+        meth = DTLSv1_2_method();
     else
 #endif
 #ifndef OPENSSL_NO_TLS1

@@ -577,11 +577,11 @@ int tls1_change_cipher_state(SSL *s, int which)
             }
         }
     }
-#endif                          /* OPENSSL_NO_COMP */
+#endif
     /*
-     * this is done by dtls1_reset_seq_numbers for DTLS1_VERSION
+     * this is done by dtls1_reset_seq_numbers for DTLS
      */
-    if (s->version != DTLS1_VERSION)
+    if (!SSL_IS_DTLS(s))
         memset(is_read ? s->s3->read_sequence : s->s3->write_sequence, 0, 8);
 
     /* key_arg is used for SSLv2. We don't need it for TLS. */
