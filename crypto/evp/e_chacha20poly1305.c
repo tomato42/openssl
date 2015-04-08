@@ -212,7 +212,7 @@ static ossl_ssize_t aead_chacha20_poly1305_open(const EVP_AEAD_CTX *ctx,
      * the warning.
      */
     if (in_len_64 >= (1ull << 32) * 64 - 64) {
-        EVPerr(EVP_F_AEAD_CHACHA20_POLY1305_SEAL, EVP_R_TOO_LARGE);
+        EVPerr(EVP_F_AEAD_CHACHA20_POLY1305_OPEN, EVP_R_TOO_LARGE);
         return -1;
     }
 

@@ -1,6 +1,6 @@
 /* crypto/evp/evp_err.c */
 /* ====================================================================
- * Copyright (c) 1999-2013 The OpenSSL Project.  All rights reserved.
+ * Copyright (c) 1999-2015 The OpenSSL Project.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -70,15 +70,15 @@
 # define ERR_REASON(reason) ERR_PACK(ERR_LIB_EVP,0,reason)
 
 static ERR_STRING_DATA EVP_str_functs[] = {
-    {ERR_FUNC(EVP_F_AEAD_AES_128_GCM_INIT),	"AEAD_AES_128_GCM_INIT"},
-    {ERR_FUNC(EVP_F_AEAD_AES_128_GCM_OPEN),	"AEAD_AES_128_GCM_OPEN"},
-    {ERR_FUNC(EVP_F_AEAD_AES_128_GCM_SEAL),	"AEAD_AES_128_GCM_SEAL"},
-    {ERR_FUNC(EVP_F_AEAD_CHACHA20_POLY1305_INIT),	"AEAD_CHACHA20_POLY1305_INIT"},
-    {ERR_FUNC(EVP_F_AEAD_CHACHA20_POLY1305_OPEN),	"AEAD_CHACHA20_POLY1305_OPEN"},
-    {ERR_FUNC(EVP_F_AEAD_CHACHA20_POLY1305_SEAL),	"AEAD_CHACHA20_POLY1305_SEAL"},
-    {ERR_FUNC(EVP_F_EVP_AEAD_CTX_INIT),	"EVP_AEAD_CTX_init"},
-    {ERR_FUNC(EVP_F_AEAD_CTX_OPEN),	"AEAD_CTX_OPEN"},
-    {ERR_FUNC(EVP_F_AEAD_CTX_SEAL),	"AEAD_CTX_SEAL"},
+    {ERR_FUNC(EVP_F_AEAD_AES_128_GCM_INIT), "AEAD_AES_128_GCM_INIT"},
+    {ERR_FUNC(EVP_F_AEAD_AES_128_GCM_OPEN), "AEAD_AES_128_GCM_OPEN"},
+    {ERR_FUNC(EVP_F_AEAD_AES_128_GCM_SEAL), "AEAD_AES_128_GCM_SEAL"},
+    {ERR_FUNC(EVP_F_AEAD_CHACHA20_POLY1305_INIT),
+     "AEAD_CHACHA20_POLY1305_INIT"},
+    {ERR_FUNC(EVP_F_AEAD_CHACHA20_POLY1305_OPEN),
+     "AEAD_CHACHA20_POLY1305_OPEN"},
+    {ERR_FUNC(EVP_F_AEAD_CHACHA20_POLY1305_SEAL),
+     "AEAD_CHACHA20_POLY1305_SEAL"},
     {ERR_FUNC(EVP_F_AESNI_INIT_KEY), "AESNI_INIT_KEY"},
     {ERR_FUNC(EVP_F_AESNI_XTS_CIPHER), "AESNI_XTS_CIPHER"},
     {ERR_FUNC(EVP_F_AES_INIT_KEY), "AES_INIT_KEY"},
@@ -95,6 +95,9 @@ static ERR_STRING_DATA EVP_str_functs[] = {
     {ERR_FUNC(EVP_F_DSA_PKEY2PKCS8), "DSA_PKEY2PKCS8"},
     {ERR_FUNC(EVP_F_ECDSA_PKEY2PKCS8), "ECDSA_PKEY2PKCS8"},
     {ERR_FUNC(EVP_F_ECKEY_PKEY2PKCS8), "ECKEY_PKEY2PKCS8"},
+    {ERR_FUNC(EVP_F_EVP_AEAD_CTX_INIT), "EVP_AEAD_CTX_init"},
+    {ERR_FUNC(EVP_F_EVP_AEAD_CTX_OPEN), "EVP_AEAD_CTX_open"},
+    {ERR_FUNC(EVP_F_EVP_AEAD_CTX_SEAL), "EVP_AEAD_CTX_seal"},
     {ERR_FUNC(EVP_F_EVP_CIPHERINIT_EX), "EVP_CipherInit_ex"},
     {ERR_FUNC(EVP_F_EVP_CIPHER_CTX_COPY), "EVP_CIPHER_CTX_copy"},
     {ERR_FUNC(EVP_F_EVP_CIPHER_CTX_CTRL), "EVP_CIPHER_CTX_ctrl"},
@@ -174,8 +177,7 @@ static ERR_STRING_DATA EVP_str_reasons[] = {
     {ERR_REASON(EVP_R_BN_DECODE_ERROR), "bn decode error"},
     {ERR_REASON(EVP_R_BN_PUBKEY_ERROR), "bn pubkey error"},
     {ERR_REASON(EVP_R_BUFFER_TOO_SMALL), "buffer too small"},
-    {ERR_REASON(EVP_R_CAMELLIA_KEY_SETUP_FAILED),
-     "camellia key setup failed"},
+    {ERR_REASON(EVP_R_CAMELLIA_KEY_SETUP_FAILED), "camellia key setup failed"},
     {ERR_REASON(EVP_R_CIPHER_PARAMETER_ERROR), "cipher parameter error"},
     {ERR_REASON(EVP_R_COMMAND_NOT_SUPPORTED), "command not supported"},
     {ERR_REASON(EVP_R_CTRL_NOT_IMPLEMENTED), "ctrl not implemented"},
@@ -221,9 +223,8 @@ static ERR_STRING_DATA EVP_str_reasons[] = {
     {ERR_REASON(EVP_R_OPERATION_NOT_SUPPORTED_FOR_THIS_KEYTYPE),
      "operation not supported for this keytype"},
     {ERR_REASON(EVP_R_OPERATON_NOT_INITIALIZED), "operaton not initialized"},
-    {ERR_REASON(EVP_R_OUTPUT_ALIASES_INPUT) ,"output aliases input"},
-    {ERR_REASON(EVP_R_PKCS8_UNKNOWN_BROKEN_TYPE),
-     "pkcs8 unknown broken type"},
+    {ERR_REASON(EVP_R_OUTPUT_ALIASES_INPUT), "output aliases input"},
+    {ERR_REASON(EVP_R_PKCS8_UNKNOWN_BROKEN_TYPE), "pkcs8 unknown broken type"},
     {ERR_REASON(EVP_R_PRIVATE_KEY_DECODE_ERROR), "private key decode error"},
     {ERR_REASON(EVP_R_PRIVATE_KEY_ENCODE_ERROR), "private key encode error"},
     {ERR_REASON(EVP_R_PUBLIC_KEY_NOT_RSA), "public key not rsa"},

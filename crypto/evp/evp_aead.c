@@ -93,7 +93,7 @@ int EVP_AEAD_CTX_init(EVP_AEAD_CTX *ctx, const EVP_AEAD *aead,
 {
     ctx->aead = aead;
     if (key_len != aead->key_len) {
-        EVPerr(EVP_F_EVP_AEAD_CTX_INIT,EVP_R_UNSUPPORTED_KEY_SIZE);
+        EVPerr(EVP_F_EVP_AEAD_CTX_INIT, EVP_R_UNSUPPORTED_KEY_SIZE);
         return (0);
     }
     return (aead->init(ctx, key, key_len, tag_len));
@@ -137,12 +137,12 @@ ossl_ssize_t EVP_AEAD_CTX_seal(const EVP_AEAD_CTX *ctx,
     if (possible_out_len < in_len /* overflow */ ||
         possible_out_len > SSIZE_MAX /* return value cannot be
                         represented */) {
-        EVPerr(EVP_F_AEAD_CTX_SEAL, EVP_R_TOO_LARGE);
+        EVPerr(EVP_F_EVP_AEAD_CTX_SEAL, EVP_R_TOO_LARGE);
         goto error;
     }
 
     if (!check_alias(in, in_len, out)) {
-        EVPerr(EVP_F_AEAD_CTX_SEAL, EVP_R_OUTPUT_ALIASES_INPUT);
+        EVPerr(EVP_F_EVP_AEAD_CTX_SEAL, EVP_R_OUTPUT_ALIASES_INPUT);
         goto error;
     }
 
@@ -167,12 +167,12 @@ ossl_ssize_t EVP_AEAD_CTX_open(const EVP_AEAD_CTX *ctx,
     ossl_ssize_t r;
 
     if (in_len > SSIZE_MAX) {
-        EVPerr(EVP_F_AEAD_CTX_OPEN, EVP_R_TOO_LARGE);
+        EVPerr(EVP_F_EVP_AEAD_CTX_OPEN, EVP_R_TOO_LARGE);
         goto error;  /* may not be able to represent return value. */
     }
 
     if (!check_alias(in, in_len, out)) {
-        EVPerr(EVP_F_AEAD_CTX_OPEN, EVP_R_OUTPUT_ALIASES_INPUT);
+        EVPerr(EVP_F_EVP_AEAD_CTX_OPEN, EVP_R_OUTPUT_ALIASES_INPUT);
         goto error;
     }
 

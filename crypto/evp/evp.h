@@ -1475,14 +1475,12 @@ void ERR_load_EVP_strings(void);
 /* Error codes for the EVP functions. */
 
 /* Function codes. */
-# define EVP_F_AEAD_AES_128_GCM_INIT                      183
+# define EVP_F_AEAD_AES_128_GCM_INIT                      188
 # define EVP_F_AEAD_AES_128_GCM_OPEN                      181
 # define EVP_F_AEAD_AES_128_GCM_SEAL                      182
 # define EVP_F_AEAD_CHACHA20_POLY1305_INIT                187
 # define EVP_F_AEAD_CHACHA20_POLY1305_OPEN                184
 # define EVP_F_AEAD_CHACHA20_POLY1305_SEAL                183
-# define EVP_F_AEAD_CTX_OPEN                              185
-# define EVP_F_AEAD_CTX_SEAL                              186
 # define EVP_F_AESNI_INIT_KEY                             165
 # define EVP_F_AESNI_XTS_CIPHER                           176
 # define EVP_F_AES_INIT_KEY                               133
@@ -1500,6 +1498,8 @@ void ERR_load_EVP_strings(void);
 # define EVP_F_ECDSA_PKEY2PKCS8                           129
 # define EVP_F_ECKEY_PKEY2PKCS8                           132
 # define EVP_F_EVP_AEAD_CTX_INIT                          180
+# define EVP_F_EVP_AEAD_CTX_OPEN                          185
+# define EVP_F_EVP_AEAD_CTX_SEAL                          186
 # define EVP_F_EVP_CIPHERINIT_EX                          123
 # define EVP_F_EVP_CIPHER_CTX_COPY                        163
 # define EVP_F_EVP_CIPHER_CTX_CTRL                        124
@@ -1615,7 +1615,7 @@ void ERR_load_EVP_strings(void);
 # define EVP_R_NO_VERIFY_FUNCTION_CONFIGURED              105
 # define EVP_R_OPERATION_NOT_SUPPORTED_FOR_THIS_KEYTYPE   150
 # define EVP_R_OPERATON_NOT_INITIALIZED                   151
-# define EVP_R_OUTPUT_ALIASES_INPUT                       170
+# define EVP_R_OUTPUT_ALIASES_INPUT                       172
 # define EVP_R_PKCS8_UNKNOWN_BROKEN_TYPE                  117
 # define EVP_R_PRIVATE_KEY_DECODE_ERROR                   145
 # define EVP_R_PRIVATE_KEY_ENCODE_ERROR                   146
