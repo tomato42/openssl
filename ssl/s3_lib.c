@@ -1270,7 +1270,7 @@ OPENSSL_GLOBAL SSL_CIPHER ssl3_ciphers[] = {
 
 #if TLS1_ALLOW_EXPERIMENTAL_CIPHERSUITES
     /* New TLS Export CipherSuites from expired ID */
-# if 0
+# if 1
     /* Cipher 60 */
     {
      1,
