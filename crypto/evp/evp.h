@@ -1358,10 +1358,6 @@ void EVP_PKEY_meth_set_ctrl(EVP_PKEY_METHOD *pmeth,
 struct evp_aead_st;
 typedef struct evp_aead_st EVP_AEAD;
 
-#ifndef OPENSSL_NO_AES
-/* EVP_aes_128_gcm is AES-128 in Galois Counter Mode. */
-const EVP_AEAD *EVP_aead_aes_128_gcm(void);
-#endif
 
 #if !defined(OPENSSL_NO_CHACHA) && !defined(OPENSSL_NO_POLY1305)
 /* EVP_aead_chacha20_poly1305 is ChaCha20 with a Poly1305 authenticator. */

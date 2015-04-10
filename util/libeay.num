@@ -4426,4 +4426,3 @@ CRYPTO_poly1305_finish                  4783	EXIST::FUNCTION:
 CRYPTO_poly1305_init                    4784	EXIST::FUNCTION:
 EVP_AEAD_max_overhead                   4785	EXIST::FUNCTION:
 CRYPTO_chacha_20                        4786	EXIST::FUNCTION:
-EVP_aead_aes_128_gcm                    4787	EXIST::FUNCTION:AES

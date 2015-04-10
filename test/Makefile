@@ -358,17 +358,10 @@ test_poly1305: $(POLY1305TEST)$(EXE_EXT)
 	@echo "Test Poly1305"
 	../util/shlib_wrap.sh ./$(POLY1305TEST)
 
-test_aead: $(AEADTEST)$(EXE_EXT) chacha20_poly1305_tests.txt \
-          aes_128_gcm_tests.txt aes_256_gcm_tests.txt
+test_aead: $(AEADTEST)$(EXE_EXT) chacha20_poly1305_tests.txt
 	@echo "Test ChaCha20+Poly1305"
 	../util/shlib_wrap.sh ./$(AEADTEST) chacha20-poly1305 \
 		chacha20_poly1305_tests.txt
-	@echo "Test AES-128-GCM"
-	../util/shlib_wrap.sh ./$(AEADTEST) aes-128-gcm \
-		aes_128_gcm_tests.txt
-	@echo "Test AES-256-GCM"
-	../util/shlib_wrap.sh ./$(AEADTEST) aes-256-gcm \
-		aes_256_gcm_tests.txt
 
 test_constant_time: $(CONSTTIMETEST)$(EXE_EXT)
 	@echo "Test constant time utilites"

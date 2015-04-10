@@ -546,17 +546,13 @@ int ssl_cipher_get_evp_aead(const SSL_SESSION *s, const EVP_AEAD **aead)
         return 0;
 
 #ifndef OPENSSL_NO_AES
-    switch (c->algorithm_enc)
-        {
-    case SSL_AES128GCM:
-        *aead = EVP_aead_aes_128_gcm();
-        return 1;
+    switch (c->algorithm_enc) {
 #if !defined(OPENSSL_NO_CHACHA) && !defined(OPENSSL_NO_POLY1305)
     case SSL_CHACHA20POLY1305:
         *aead = EVP_aead_chacha20_poly1305();
         return 1;
 #endif  /* !OPENSSL_NO_CHACHA && !OPENSSL_NO_POLY1305 */
-        }
+    }
 #endif
 
     return 0;

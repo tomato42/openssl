@@ -217,26 +217,6 @@ int main(int argc, char **argv)
 		return 0;
 #endif
 		}
-	else if (strcmp(argv[1], "aes-128-gcm") == 0)
-		{
-#ifndef OPENSSL_NO_AES
-		aead = EVP_aead_aes_128_gcm();
-#else
-		fprintf(stderr, "No AES support. Skipping test.\n");
-		return 0;
-#endif
-		}
-        	else if (strcmp(argv[1], "aes-256-gcm") == 0)
-		{
-#ifndef OPENSSL_NO_AES
-                  fprintf(stderr, "No aes-256-gcm support yet. Skipping test.\n");
-                  return 0;
-                  //		aead = EVP_aead_aes_256_gcm();
-#else
-		fprintf(stderr, "No AES support. Skipping test.\n");
-		return 0;
-#endif
-                }
 	else
 		{
 		fprintf(stderr, "Unknown AEAD: %s\n", argv[1]);
