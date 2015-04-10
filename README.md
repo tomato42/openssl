@@ -29,6 +29,8 @@ Please see [https://www.onwebsecurity.com/openssl/replacing-chacha20poly1305-a-n
 * [Added SHA256 CAMELLIA ciphers (cherry-picked from the upstream master branch)](https://github.com/PeterMosmans/openssl/commit/535e141f0e9df912232a6bd2ece72f30945962a1)
 * [Added HMAC based CAMELLIA ciphers](https://github.com/PeterMosmans/openssl/commit/8efbb71e40b99e86741aafd6a3c95b941a26e5ce)
 * [Enabled experimental features](https://github.com/PeterMosmans/openssl/commit/8c722ce5fb005a1886e2d76e788cc3441592490e)
+* [Enabled even more ciphers](https://github.com/PeterMosmans/openssl/commit/c77a5fc708c9e88bce2c0c742f419ac908cd44d)
+* [Test all SSL ciphers by default (RT #2584)](https://github.com/PeterMosmans/openssl/commit/85f54b0907f8b7bd67336b742b162effb154ed20)
 * Additions to s_client:
   * -proxy (RT #2651)
   * -starttls telnet (RT #2451)
@@ -37,7 +39,7 @@ Please see [https://www.onwebsecurity.com/openssl/replacing-chacha20poly1305-a-n
   * [-fix Windows blocking (RT #3464)](https://github.com/PeterMosmans/openssl/commit/68ab9b308e173072e5015063be7e194bec1f311f)
 * Minor changes to Makefiles to simplify building using the mingw / mingw64 platform on Windows
   * [-universal build time instead of local build time](https://github.com/PeterMosmans/openssl/commit/51cf1c9043efdc06937c0d3550ff8f6fd8e43e1f)
-* [Test all SSL ciphers (RT #2584)](https://github.com/PeterMosmans/openssl/commit/85f54b0907f8b7bd67336b742b162effb154ed20)
+
 
 #### Thanks to
 * [Dirk Wetter](https://github.com/drwetter)
@@ -53,7 +55,7 @@ Please see the official OpenSSL repository for all relevant license / copyright 
 
 
 #### Supported ciphers
-Currently 181
+Currently 183
 ```
 openssl ciphers -l -V "ALL:COMPLEMENTOFALL"
 
@@ -201,6 +203,7 @@ openssl ciphers -l -V "ALL:COMPLEMENTOFALL"
           0xC0,0x0D - ECDH-RSA-DES-CBC3-SHA   SSLv3 Kx=ECDH/RSA Au=ECDH Enc=3DES(168) Mac=SHA1
           0xC0,0x03 - ECDH-ECDSA-DES-CBC3-SHA SSLv3 Kx=ECDH/ECDSA Au=ECDH Enc=3DES(168) Mac=SHA1
           0x00,0x0A - DES-CBC3-SHA            SSLv3 Kx=RSA      Au=RSA  Enc=3DES(168) Mac=SHA1
+          0x00,0x61 - EXP1024-RC2-CBC-MD5     SSLv3 Kx=RSA(1024) Au=RSA  Enc=RC2(56)   Mac=MD5  export
      0x07,0x00,0xC0 - DES-CBC3-MD5            SSLv2 Kx=RSA      Au=RSA  Enc=3DES(168) Mac=MD5 
           0x00,0x93 - RSA-PSK-3DES-EDE-CBC-SHA SSLv3 Kx=RSAPSK   Au=RSA  Enc=3DES(168) Mac=SHA1
           0x00,0x8B - PSK-3DES-EDE-CBC-SHA    SSLv3 Kx=PSK      Au=PSK  Enc=3DES(168) Mac=SHA1
@@ -216,6 +219,7 @@ openssl ciphers -l -V "ALL:COMPLEMENTOFALL"
      0x06,0x00,0x40 - DES-CBC-MD5             SSLv2 Kx=RSA      Au=RSA  Enc=DES(56)   Mac=MD5 
           0x00,0x65 - EXP1024-DHE-DSS-RC4-SHA SSLv3 Kx=DH(1024) Au=DSS  Enc=RC4(56)   Mac=SHA1 export
           0x00,0x64 - EXP1024-RC4-SHA         SSLv3 Kx=RSA(1024) Au=RSA  Enc=RC4(56)   Mac=SHA1 export
+          0x00,0x60 - EXP1024-RC4-MD5         SSLv3 Kx=RSA(1024) Au=RSA  Enc=RC4(56)   Mac=MD5  export
           0x00,0x14 - EXP-EDH-RSA-DES-CBC-SHA SSLv3 Kx=DH(512)  Au=RSA  Enc=DES(40)   Mac=SHA1 export
           0x00,0x11 - EXP-EDH-DSS-DES-CBC-SHA SSLv3 Kx=DH(512)  Au=DSS  Enc=DES(40)   Mac=SHA1 export
           0x00,0x0E - EXP-DH-RSA-DES-CBC-SHA  SSLv3 Kx=DH/RSA   Au=DH   Enc=DES(40)   Mac=SHA1 export
