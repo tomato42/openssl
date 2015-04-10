@@ -501,7 +501,7 @@ static int tls1_change_cipher_state_cipher(
     if (is_aead_cipher && mac_secret_len > 0
         && !EVP_CIPHER_CTX_ctrl(cipher_ctx, EVP_CTRL_AEAD_SET_MAC_KEY,
                                 mac_secret_len, (void*) mac_secret)) {
-        SSLerr(SSL_F_TLS1_CHANGE_CIPHER_STATE, ERR_R_INTERNAL_ERROR);
+        SSLerr(SSL_F_TLS1_CHANGE_CIPHER_STATE_CIPHER, ERR_R_INTERNAL_ERROR);
         goto err2;
     }
 
