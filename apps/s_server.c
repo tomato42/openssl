@@ -554,6 +554,8 @@ static void sv_usage(void)
     BIO_printf(bio_err, " -CApath arg   - PEM format directory of CA's\n");
     BIO_printf(bio_err, " -CAfile arg   - PEM format file of CA's\n");
     BIO_printf(bio_err,
+               " -no_alt_chains - only ever use the first certificate chain found\n");
+    BIO_printf(bio_err,
                " -nocert       - Don't use any certificates (Anon-DH)\n");
     BIO_printf(bio_err,
                " -cipher arg   - play with 'openssl ciphers' to see what goes here\n");
@@ -754,7 +756,7 @@ static int ebcdic_write(BIO *b, const char *in, int inl)
             num = inl;
         wbuf =
             (EBCDIC_OUTBUFF *) OPENSSL_malloc(sizeof(EBCDIC_OUTBUFF) + num);
-        if(!wbuf)
+        if (!wbuf)
             return 0;
         OPENSSL_free(b->ptr);
 
@@ -3287,7 +3289,7 @@ static int generate_session_id(const SSL *ssl, unsigned char *id,
 {
     unsigned int count = 0;
     do {
-        if(RAND_pseudo_bytes(id, *id_len) < 0)
+        if (RAND_pseudo_bytes(id, *id_len) < 0)
             return 0;
         /*
          * Prefix the session_id with the required prefix. NB: If our prefix
@@ -3330,7 +3332,7 @@ static int add_session(SSL *ssl, SSL_SESSION *session)
     unsigned char *p;
 
     sess = OPENSSL_malloc(sizeof(simple_ssl_session));
-    if(!sess) {
+    if (!sess) {
         BIO_printf(bio_err, "Out of memory adding session to external cache\n");
         return 0;
     }
@@ -3341,12 +3343,12 @@ static int add_session(SSL *ssl, SSL_SESSION *session)
     sess->id = BUF_memdup(SSL_SESSION_get_id(session, NULL), sess->idlen);
 
     sess->der = OPENSSL_malloc(sess->derlen);
-    if(!sess->id || !sess->der) {
+    if (!sess->id || !sess->der) {
         BIO_printf(bio_err, "Out of memory adding session to external cache\n");
 
-        if(sess->id)
+        if (sess->id)
             OPENSSL_free(sess->id);
-        if(sess->der)
+        if (sess->der)
             OPENSSL_free(sess->der);
         OPENSSL_free(sess);
         return 0;

@@ -5006,7 +5006,7 @@ $multilib     = 64
 
 *** linux-x86_64-clang
 $cc           = clang
-$cflags       = -m64 -DL_ENDIAN -O3 -Weverything -Wno-language-extension-token -Wno-extended-offsetof -Wno-padded -Wno-shorten-64-to-32 -Wno-format-nonliteral -Wno-missing-noreturn -Wno-unused-parameter -Wno-sign-conversion -Wno-unreachable-code -Wno-conversion -Wno-documentation -Wno-missing-variable-declarations -Wno-cast-align -Wno-incompatible-pointer-types-discards-qualifiers -Wno-missing-variable-declarations -Wno-missing-field-initializers -Wno-unused-macros -Wno-disabled-macro-expansion -Wno-conditional-uninitialized -Wno-switch-enum -Wno-gnu-statement-expression -Qunused-arguments
+$cflags       = -m64 -DL_ENDIAN -O3 -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -Wno-language-extension-token  -Wno-extended-offsetof -Qunused-arguments
 $unistd       = 
 $thread_cflag = -D_REENTRANT
 $sys_id       = 
