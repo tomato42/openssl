@@ -1276,7 +1276,7 @@ static ctr128_f aes_gcm_set_key(AES_KEY *aes_key, GCM128_CONTEXT *gcm_ctx,
 # ifdef HWAES_CAPABLE
   if (HWAES_CAPABLE) {
       HWAES_set_encrypt_key(key, key_len * 8, aes_key);
-      CRYPTO_gcm128_init(&gctx->gcm, &gctx->ks,
+      CRYPTO_gcm128_init(&gcm_ctx, &gctx->ks,
                          (block128_f) HWAES_encrypt);
 #  ifdef HWAES_ctr32_encrypt_blocks
                 return (ctr128_f) HWAES_ctr32_encrypt_blocks;
@@ -1288,7 +1288,7 @@ static ctr128_f aes_gcm_set_key(AES_KEY *aes_key, GCM128_CONTEXT *gcm_ctx,
 # ifdef BSAES_CAPABLE
     if (BSAES_CAPABLE) {
         AES_set_encrypt_key(key, key_len * 8, aes_key);
-        CRYPTO_gcm128_init(gcm_ctx, aes_key,
+        CRYPTO_gcm128_init(&gcm_ctx, aes_key,
                            (block128_f) AES_encrypt);
         return (ctr128_f) bsaes_ctr32_encrypt_blocks;
     }
@@ -1296,7 +1296,7 @@ static ctr128_f aes_gcm_set_key(AES_KEY *aes_key, GCM128_CONTEXT *gcm_ctx,
 # ifdef VPAES_CAPABLE
     if (VPAES_CAPABLE) {
         vpaes_set_encrypt_key(key,key_len*8,aes_key);
-        CRYPTO_gcm128_init(gcm_ctx,aes_key,
+        CRYPTO_gcm128_init(&gcm_ctx,aes_key,
                            (block128_f)vpaes_encrypt);
         return NULL;
     } else
@@ -1304,7 +1304,7 @@ static ctr128_f aes_gcm_set_key(AES_KEY *aes_key, GCM128_CONTEXT *gcm_ctx,
         (void)0;	/* terminate potentially open 'else' */
 
     AES_set_encrypt_key(key, key_len*8, aes_key);
-    CRYPTO_gcm128_init(gcm_ctx, aes_key, (block128_f) AES_encrypt);
+    CRYPTO_gcm128_init(&gcm_ctx, aes_key, (block128_f) AES_encrypt);
 # ifdef AES_CTR_ASM
     return (ctr128_f) AES_ctr32_encrypt;
 # else
@@ -1607,7 +1607,6 @@ BLOCK_CIPHER_custom(NID_aes, 128, 1, 12, gcm, GCM,
                     EVP_CIPH_FLAG_FIPS | EVP_CIPH_FLAG_AEAD_CIPHER |
                     CUSTOM_FLAGS)
 
-
 static int aes_xts_ctrl(EVP_CIPHER_CTX *c, int type, int arg, void *ptr)
 {
     EVP_AES_XTS_CTX *xctx = c->cipher_data;
@@ -1734,7 +1733,6 @@ static int aes_xts_cipher(EVP_CIPHER_CTX *ctx, unsigned char *out,
         return 0;
     return 1;
 }
-
 
 # define aes_xts_cleanup NULL
 
@@ -1918,7 +1916,6 @@ BLOCK_CIPHER_custom(NID_aes, 128, 1, 12, ccm, CCM,
                     EVP_CIPH_FLAG_FIPS | CUSTOM_FLAGS)
     BLOCK_CIPHER_custom(NID_aes, 256, 1, 12, ccm, CCM,
                     EVP_CIPH_FLAG_FIPS | CUSTOM_FLAGS)
-
 #endif
 typedef struct {
     union {
