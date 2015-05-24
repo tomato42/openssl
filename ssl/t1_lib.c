@@ -1557,6 +1557,7 @@ unsigned char *ssl_add_clienthello_tlsext(SSL *s, unsigned char *buf,
         }
     }
 
+done:
     if ((extdatalen = ret - orig - 2) == 0)
         return orig;
 
